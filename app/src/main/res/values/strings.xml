@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">tiendaManuel</string>
+    <string name="title_login">Inicio de Sesión</string>
+    <string name="acceder">Acceder a la tienda</string>
 </resources>
