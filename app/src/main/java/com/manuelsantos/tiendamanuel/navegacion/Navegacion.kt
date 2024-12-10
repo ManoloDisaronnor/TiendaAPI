@@ -1,4 +1,4 @@
-package com.manuelsantos.tiendamanuel.ui.navegacion
+package com.manuelsantos.tiendamanuel.navegacion
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost

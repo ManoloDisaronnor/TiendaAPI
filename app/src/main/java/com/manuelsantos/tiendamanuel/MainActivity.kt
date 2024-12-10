@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.manuelsantos.tiendamanuel.ui.navegacion.Navegacion
+import com.manuelsantos.tiendamanuel.navegacion.Navegacion
 import com.manuelsantos.tiendamanuel.ui.theme.TiendaManuelTheme
 
 class MainActivity : ComponentActivity() {

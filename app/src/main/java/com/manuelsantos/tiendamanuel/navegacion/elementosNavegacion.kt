@@ -1,4 +1,4 @@
-package com.manuelsantos.tiendamanuel.ui.navegacion
+package com.manuelsantos.tiendamanuel.navegacion
 
 import kotlinx.serialization.Serializable
 
