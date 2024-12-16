@@ -20,7 +20,7 @@ class ProductosViewModel: ViewModel() {
         _progressBar.value = true
         viewModelScope.launch() {
             val productos = RemoteConnection.remoteService.getProducts()
-            _lista.value = productos.productos.map {
+            _lista.value = productos.map {
                 it.toMediaItem()
             }
             _progressBar.value = false

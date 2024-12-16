@@ -1,15 +1,20 @@
 package com.manuelsantos.tiendamanuel.scaffold
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -31,40 +40,53 @@ fun TopBarTienda(
     nombre: String
 //    navigateToLogin : () -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
-            Text(stringResource(id = R.string.topBar_tienda), style = MaterialTheme.typography.titleLarge, fontSize = 20.sp)
+            Text(stringResource(id = R.string.topBar_tienda), style = MaterialTheme.typography.titleLarge, fontSize = 24.sp)
         },
         navigationIcon = {
             IconButton(
-                onClick = {}
+                onClick = {  },
             ) {
                 Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Tienda",
-                    tint = Color(0xBD0044cd),
-                    modifier = Modifier
-                        .size(35.dp)
-                        .background(Color(0x0f0044cd), shape = CircleShape)
-                        .padding(4.dp)
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+                        .border(0.dp, Color.White, CircleShape),
+                    tint = Color(0xFF296AF1),
+
                 )
             }
         },
         actions = {
-            Button(
-                onClick = {  },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0x0f0044cd),
-                    contentColor = Color.Black,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.Black
-                )
+            IconButton(
+                onClick = { expanded = !expanded },
             ) {
-                Text(nombre)
-                Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                 Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Menu"
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "DropDownMenu"
+                )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .background(Color.White)
+                    .width(200.dp)
+            ) {
+                DropdownMenuItem(
+                    text = { Text("1") },
+                    onClick = {}
+                )
+                DropdownMenuItem(
+                    text = { Text("2") },
+                    onClick = {}
+                )
+                DropdownMenuItem(
+                    text = { Text("3") },
+                    onClick = {}
                 )
             }
         },
@@ -73,5 +95,4 @@ fun TopBarTienda(
             titleContentColor = Color.Black
         )
     )
-
 }
