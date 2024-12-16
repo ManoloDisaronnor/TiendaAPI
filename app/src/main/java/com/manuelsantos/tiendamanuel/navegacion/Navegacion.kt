@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.LoginScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosScreen
+import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosViewModel
 
 @Composable
 fun Navegacion() {
@@ -19,7 +20,8 @@ fun Navegacion() {
         }
         composable<Productos> { backStackEntry ->
             val usuario = backStackEntry.toRoute<Productos>().usuario
-            ProductosScreen(usuario)
+            val viewModel = ProductosViewModel()
+            ProductosScreen(usuario, viewModel)
         }
     }
 }

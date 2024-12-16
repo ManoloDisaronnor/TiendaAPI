@@ -1,6 +1,6 @@
 package com.manuelsantos.tiendamanuel.data.model
 
-import com.manuelsantos.tiendamanuel.data.Rating
+import com.manuelsantos.tiendamanuel.data.repositories.model.Rating
 
 data class MediaItem (
     val id: Int,
