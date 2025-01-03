@@ -2,17 +2,12 @@ package com.manuelsantos.tiendamanuel.scaffold
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Shop
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +32,6 @@ import com.manuelsantos.tiendamanuel.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarTienda(
-    nombre: String
 //    navigateToLogin : () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -51,7 +45,7 @@ fun TopBarTienda(
                 onClick = {  },
             ) {
                 Icon(
-                    imageVector = Icons.Default.Menu,
+                    imageVector = Icons.Default.Shop,
                     contentDescription = null,
                     modifier = Modifier.size(32.dp)
                         .border(0.dp, Color.White, CircleShape),

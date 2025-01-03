@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 object Login
 
 @Serializable
-data class Productos(val usuario: String)
+object Productos
+
+@Serializable
+data class Detalle(val id: Int)
