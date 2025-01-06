@@ -2,7 +2,6 @@ package com.manuelsantos.tiendamanuel.ui.screen.productosScreen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,18 +38,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.scaffold.TopBarTienda
 
 
 @Composable
-fun ProductosScreen(viewModel: ProductosViewModel, navigateToDetalle: (Int) -> Unit) {
+fun ProductosScreen(viewModel: ProductosViewModel, navigateToDetalle: (String) -> Unit) {
     val lista by viewModel.lista.observeAsState(emptyList())
     val progressBar by viewModel.progressBar.observeAsState(false)
     Scaffold(
@@ -94,7 +91,7 @@ fun ProductosScreen(viewModel: ProductosViewModel, navigateToDetalle: (Int) -> U
 }
 
 @Composable
-private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (Int) -> Unit) {
+private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (String) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth()
             .padding(14.dp)
@@ -106,7 +103,7 @@ private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (Int) -> Unit
             .clip(RoundedCornerShape(16.dp))
             .padding(8.dp)
             .clickable {
-                navigateToDetalle(mediaItem.id)
+                navigateToDetalle(mediaItem.id.toString())
             },
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -118,17 +115,13 @@ private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (Int) -> Unit
 
 @Composable
 private fun Imagen(item: MediaItem, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(500.dp)
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = item.image,
-                imageLoader = ImageLoader.Builder(context).crossfade(true).build()
-            ),
+        AsyncImage(
+            model = item.image,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Fit

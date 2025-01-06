@@ -3,4 +3,6 @@
     <string name="title_login">Bienvenido a Telares del Sur</string>
     <string name="acceder">Acceder a la tienda</string>
     <string name="topBar_tienda">Telares del Sur</string>
+    <string name="descripcion">Descripción</string>
+    <string name="resenyas">Reseñas de usuarios</string>
 </resources>

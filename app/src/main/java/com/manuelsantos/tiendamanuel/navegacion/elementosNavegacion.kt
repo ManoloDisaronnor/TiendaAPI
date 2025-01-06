@@ -9,4 +9,4 @@ object Login
 object Productos
 
 @Serializable
-data class Detalle(val id: Int)
+data class Detalle(val id: String)

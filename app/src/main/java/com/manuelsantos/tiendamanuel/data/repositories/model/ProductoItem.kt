@@ -13,10 +13,11 @@ data class ProductoItem(
 )
 
 fun ProductoItem.toMediaItem() = MediaItem(
-    id = id,
-    title = title,
-    price = price,
+    category = category,
     description = description,
+    id = id,
     image = image,
-    rating = rating
+    price = price,
+    rating = rating,
+    title = title,
 )

@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.manuelsantos.tiendamanuel.ui.screen.detalleScreen.DetalleScreen
+import com.manuelsantos.tiendamanuel.ui.screen.detalleScreen.ProductoIdViewModel
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.LoginScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosViewModel
@@ -27,7 +28,8 @@ fun Navegacion() {
         }
         composable<Detalle> { backStackEntry ->
             val id = backStackEntry.toRoute<Detalle>().id
-            DetalleScreen(id) {
+            val viewModel = ProductoIdViewModel(id)
+            DetalleScreen(viewModel) {
                 navController.navigate(Productos) {
                     popUpTo(Productos) { inclusive = true }
                 }
