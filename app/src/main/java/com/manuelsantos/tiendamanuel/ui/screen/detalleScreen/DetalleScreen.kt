@@ -47,9 +47,10 @@ import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.scaffold.TopBar
+import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
 
 @Composable
-fun DetalleScreen(viewModel: ProductoIdViewModel, navigateToBack: () -> Unit) {
+fun DetalleScreen(viewModel: ProductosViewModel, navigateToBack: () -> Unit) {
     val producto by viewModel.producto.observeAsState()
     val progressBar by viewModel.progressBar.observeAsState(false)
     if (progressBar) {

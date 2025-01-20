@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
+import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
 import com.manuelsantos.tiendamanuel.scaffold.TopBarTienda
 
 

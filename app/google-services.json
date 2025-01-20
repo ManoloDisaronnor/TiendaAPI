@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "358587631615",
+    "project_id": "tiendaapi-923eb",
+    "storage_bucket": "tiendaapi-923eb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358587631615:android:bcd07538d66c78d9ae89ca",
+        "android_client_info": {
+          "package_name": "com.manuelsantos.tiendamanuel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALvNTpFmdj9HF-8SN87KSB-2HUrNZQDz4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
