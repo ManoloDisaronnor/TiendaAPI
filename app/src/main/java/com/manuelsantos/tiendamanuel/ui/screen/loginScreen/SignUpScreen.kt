@@ -1,5 +1,7 @@
 package com.manuelsantos.tiendamanuel.ui.screen.loginScreen
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,6 +31,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,10 +55,12 @@ import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.ui.theme.Purple40
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSignUp: () -> Unit) {
+fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
+    var usuario by remember { mutableStateOf("") }
     var passwd by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -70,7 +76,7 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 40.dp)
-                    .clickable {  },
+                    .clickable { },
                 style = TextStyle(
                     color = Purple40,
                     fontSize = 14.sp,
@@ -104,6 +110,19 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
                 Spacer(modifier = Modifier.height(30.dp))
 
                 TextField(
+                    value = usuario,
+                    onValueChange = { usuario = it },
+                    label = { Text("Usuario") },
+                    modifier = Modifier.width(335.dp),
+                    leadingIcon = {
+                        Icon(Icons.Default.Person, contentDescription = "Ícono de usuario")
+                    },
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Correo") },
@@ -134,88 +153,38 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
 
                 Button(
                     modifier = Modifier.width(335.dp),
-                    onClick = { navigateToProductos() },
+                    onClick = {
+                        scope.launch {
+                            signUp(auth, usuario, email, passwd, context, navigateToLogin)
+                        }
+                    },
                 ) {
-                    Text(stringResource(R.string.acceder))
+                    if (auth.progressBar.value == true) {
+                        CircularProgressIndicator()
+                    } else {
+                        Text(stringResource(R.string.acceder))
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = "¿Olvidaste tu contraseña?",
-                    modifier = Modifier.clickable { },
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily.Default,
-                        textDecoration = TextDecoration.Underline,
-                        color = Purple40
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(25.dp))
-
-                Text(text = "-------- o --------", style = TextStyle(color = Color.Gray))
-
-                Spacer(modifier = Modifier.height(25.dp))
-
-                BotonesGoogle(
-                    onClick = {
-                        //TODO
-                    },
-                    text = "Continuar como invitado",
-                    icon = R.drawable.ic_incognito,
-                    color = Color(0xFF363636)
-                )
-
-                Spacer(modifier = Modifier.height(15.dp))
-
-                BotonesGoogle(
-                    onClick = {
-                        //TODO
-                    },
-                    text = "Continuar con Google",
-                    icon = R.drawable.ic_google,
-                    color = Color(0xFFF1F1F1)
-                )
             }
         }
     }
 }
 
-@Composable
-fun BotonesGoogle(onClick: () -> Unit, text: String, icon: Int, color: Color) {
-    var click by remember { mutableStateOf(false) }
-    Surface(
-        onClick = onClick,
-        modifier = Modifier
-            .padding(start = 40.dp, end = 40.dp)
-            .clickable { click = !click },
-        shape = RoundedCornerShape(50),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (icon == R.drawable.ic_incognito) color else Color.Gray
-        ),
-        color = color
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                modifier = Modifier.size(24.dp),
-                contentDescription = text,
-                tint = Color.Unspecified
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = text,
-                color = if (icon == R.drawable.ic_incognito) Color.White else Color.Black
-            )
-            click = true
+suspend fun signUp(auth: AuthManager, usuario: String, email: String, passwd: String, context: Context, navigateToLogin: () -> Unit) {
+    if (email.isNotEmpty() && usuario.isNotEmpty() && passwd.isNotEmpty()) {
+        val authState by auth.authState.collectAsState()
+        auth.createUserWithEmailAndPassword(email, passwd)
+        LaunchedEffect(authState) {
+            when(authState) {
+                is AuthManager.AuthRes.Success -> {
+                    Toast.makeText(context, "Usuario creado", Toast.LENGTH_SHORT).show()
+                    navigateToLogin()
+                }
+                is AuthManager.AuthRes.Error -> {
+                    Toast.makeText(context, (authState as AuthManager.AuthRes.Error).errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
+
