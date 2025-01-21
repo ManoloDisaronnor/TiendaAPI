@@ -49,10 +49,11 @@ fun TopBar(
         },
         actions = {
             Row(
-                modifier = Modifier.padding(12.dp)
-                    .background(Color(0xffedf3fc), shape = CircleShape)
+                modifier = Modifier
                     .padding(12.dp)
+                    .background(Color(0xffedf3fc), shape = CircleShape)
                     .clickable {  }
+                    .padding(12.dp)
             ) {
                 Text(nombre, color = Color.Black)
                 Spacer(modifier = Modifier.padding(horizontal = 4.dp))
