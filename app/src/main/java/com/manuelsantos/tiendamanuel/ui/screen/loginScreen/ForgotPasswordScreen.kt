@@ -13,11 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -42,8 +39,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,10 +47,8 @@ import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
+fun ForgotPasswordScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
-    var usuario by remember { mutableStateOf("") }
-    var passwd by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val authState by auth.authState.collectAsState()
@@ -63,7 +56,7 @@ fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
     LaunchedEffect(authState) {
         when(authState) {
             is AuthManager.AuthRes.Success -> {
-                Toast.makeText(context, "Usuario registrado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Se ha enviado un correo a la direccion especificada para reestablecer la contraseña", Toast.LENGTH_SHORT).show()
                 auth.resetAuthState()
                 navigateToLogin()
             }
@@ -113,41 +106,12 @@ fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
                 Spacer(modifier = Modifier.height(75.dp))
 
                 TextField(
-                    value = usuario,
-                    onValueChange = { usuario = it },
-                    label = { Text("Usuario") },
-                    modifier = Modifier.width(335.dp),
-                    leadingIcon = {
-                        Icon(Icons.Default.Person, contentDescription = "Ícono de usuario")
-                    },
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                TextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Correo") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    label = { Text("Email") },
                     modifier = Modifier.width(335.dp),
                     leadingIcon = {
-                        Icon(Icons.Default.Mail, contentDescription = "Ícono de email")
-                    },
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                TextField(
-                    value = passwd,
-                    onValueChange = { passwd = it },
-                    label = { Text("Contraseña") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.width(335.dp),
-                    leadingIcon = {
-                        Icon(Icons.Default.Lock, contentDescription = "Ícono de password")
+                        Icon(Icons.Default.Mail, contentDescription = "Ícono de correo")
                     },
                     singleLine = true
                 )
@@ -159,7 +123,7 @@ fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
                         .height(50.dp),
                     onClick = {
                         scope.launch {
-                            signUp(auth, usuario, email, passwd, context)
+                            forgotPassword(auth, email, context)
                         }
                     },
                 ) {
@@ -170,7 +134,7 @@ fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
                             strokeWidth = 3.dp
                         )
                     } else {
-                        Text(stringResource(R.string.sign_up))
+                        Text(stringResource(R.string.forgot_password))
                     }
                 }
             }
@@ -178,10 +142,11 @@ fun SignUpScreen(auth: AuthManager, navigateToLogin: () -> Unit) {
     }
 }
 
-suspend fun signUp(auth: AuthManager, usuario: String, email: String, passwd: String, context: Context) {
-    if (email.isNotEmpty() && usuario.isNotEmpty() && passwd.isNotEmpty()) {
-        auth.createUserWithEmailAndPassword(email, passwd, usuario)
+suspend fun forgotPassword(auth: AuthManager, email: String, context: Context) {
+    if (email.isNotEmpty()) {
+        auth.forgotPassword(email)
     } else {
-        Toast.makeText(context, "Rellene todos los campos", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Ingrese un correo electronico", Toast.LENGTH_SHORT).show()
     }
 }
+

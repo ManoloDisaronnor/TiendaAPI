@@ -10,6 +10,7 @@ import com.manuelsantos.tiendamanuel.ui.screen.detalleScreen.DetalleScreen
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.LoginScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosScreen
 import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
+import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.ForgotPasswordScreen
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.SignUpScreen
 
 @Composable
@@ -17,6 +18,7 @@ fun Navegacion() {
     val navController = rememberNavController()
     val viewModel = ProductosViewModel()
     val auth = AuthManager()
+    auth.resetAuthState()
     viewModel.cargarProductos()
     NavHost(navController = navController, startDestination = Login) {
         composable<Login> {
@@ -26,25 +28,38 @@ fun Navegacion() {
                 },
                 {
                     navController.navigate(SignUp)
+                },
+                {
+                    navController.navigate(ForgotPassword)
                 }
             )
         }
 
         composable<SignUp> {
             SignUpScreen(auth) {
-                navController.popBackStack()
+                navController.navigate(Login){
+                    popUpTo(Login){ inclusive = true }
+                }
+            }
+        }
+
+        composable<ForgotPassword> {
+            ForgotPasswordScreen(auth) {
+                navController.navigate(Login){
+                    popUpTo(Login){ inclusive = true }
+                }
             }
         }
 
         composable<Productos> {
-            ProductosScreen(viewModel) { id ->
+            ProductosScreen(auth, viewModel) { id ->
                 navController.navigate(Detalle(id))
             }
         }
         composable<Detalle> { backStackEntry ->
             val id = backStackEntry.toRoute<Detalle>().id
             viewModel.cargarProductoId(id)
-            DetalleScreen(viewModel) {
+            DetalleScreen(auth, viewModel) {
                 navController.navigate(Productos) {
                     popUpTo(Productos) { inclusive = true }
                 }

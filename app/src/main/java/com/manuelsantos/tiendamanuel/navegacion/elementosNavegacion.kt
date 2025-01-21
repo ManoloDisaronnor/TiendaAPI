@@ -9,6 +9,9 @@ object Login
 object SignUp
 
 @Serializable
+object ForgotPassword
+
+@Serializable
 object Productos
 
 @Serializable

@@ -1,5 +1,7 @@
 package com.manuelsantos.tiendamanuel.ui.screen.loginScreen
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -19,8 +21,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,7 +30,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,13 +56,29 @@ import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.ui.theme.Purple40
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSignUp: () -> Unit) {
+fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSignUp: () -> Unit, navigateToForgotPassword: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var passwd by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val authState by auth.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        when(authState) {
+            is AuthManager.AuthRes.Success -> {
+                Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
+                auth.resetAuthState()
+                navigateToProductos()
+            }
+            is AuthManager.AuthRes.Error -> {
+                Toast.makeText(context, (authState as AuthManager.AuthRes.Error).errorMessage, Toast.LENGTH_SHORT).show()
+            }
+            is AuthManager.AuthRes.Idle -> {}
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -66,11 +87,11 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
             .fillMaxSize()
             .padding(innerPadding)) {
             Text(
-                text = "¿No tienes cuenta? Regístrate",
+                text = stringResource(id = R.string.no_tienes_cuenta),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 40.dp)
-                    .clickable {  },
+                    .clickable { navigateToSignUp() },
                 style = TextStyle(
                     color = Purple40,
                     fontSize = 14.sp,
@@ -80,8 +101,9 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
             )
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                    .fillMaxSize()
+                    .padding(vertical = 40.dp),
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
@@ -101,7 +123,7 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
                     fontFamily = FontFamily.Monospace
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(50.dp))
 
                 TextField(
                     value = email,
@@ -133,17 +155,30 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
-                    modifier = Modifier.width(335.dp),
-                    onClick = { navigateToProductos() },
+                    modifier = Modifier.width(335.dp)
+                        .height(50.dp),
+                    onClick = {
+                        scope.launch {
+                            signIn(auth, email, passwd, context)
+                        }
+                    },
                 ) {
-                    Text(stringResource(R.string.acceder))
+                    if (auth.progressBar.observeAsState().value == true) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(30.dp),
+                            strokeWidth = 3.dp
+                        )
+                    } else {
+                        Text(stringResource(R.string.acceder))
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "¿Olvidaste tu contraseña?",
-                    modifier = Modifier.clickable { },
+                    text = stringResource(id = R.string.olvidado_contrasena),
+                    modifier = Modifier.clickable {navigateToForgotPassword()},
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Default,
@@ -154,7 +189,10 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
 
                 Spacer(modifier = Modifier.height(25.dp))
 
-                Text(text = "-------- o --------", style = TextStyle(color = Color.Gray))
+                Text(
+                    text = stringResource(id = R.string.divisor),
+                    style = TextStyle(color = Color.Gray)
+                )
 
                 Spacer(modifier = Modifier.height(25.dp))
 
@@ -217,5 +255,13 @@ fun BotonesGoogle(onClick: () -> Unit, text: String, icon: Int, color: Color) {
             )
             click = true
         }
+    }
+}
+
+suspend fun signIn(auth: AuthManager, email: String, passwd: String, context: Context) {
+    if (email.isNotEmpty() && passwd.isNotEmpty()) {
+        auth.signInWithEmailAndPassword(email, passwd)
+    } else {
+        Toast.makeText(context, "Complete los campos", Toast.LENGTH_SHORT).show()
     }
 }

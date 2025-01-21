@@ -5,4 +5,9 @@
     <string name="topBar_tienda">Telares del Sur</string>
     <string name="descripcion">Descripción</string>
     <string name="resenyas">Reseñas de usuarios</string>
+    <string name="sign_up">Dar de alta</string>
+    <string name="forgot_password">Enviar correo de verificacion</string>
+    <string name="olvidado_contrasena">¿Has olvidado tu contraseña?</string>
+    <string name="no_tienes_cuenta">¿Aún no tienes cuenta? Registrate</string>
+    <string name="divisor">-------- otros metodos --------</string>
 </resources>

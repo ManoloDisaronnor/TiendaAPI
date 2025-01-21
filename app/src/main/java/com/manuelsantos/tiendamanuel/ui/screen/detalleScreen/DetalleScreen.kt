@@ -45,14 +45,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.R
+import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.scaffold.TopBar
 import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
 
 @Composable
-fun DetalleScreen(viewModel: ProductosViewModel, navigateToBack: () -> Unit) {
+fun DetalleScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToBack: () -> Unit) {
     val producto by viewModel.producto.observeAsState()
     val progressBar by viewModel.progressBar.observeAsState(false)
+    val user = auth.getCurrentUser()
+
     if (progressBar) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -62,7 +65,7 @@ fun DetalleScreen(viewModel: ProductosViewModel, navigateToBack: () -> Unit) {
         }
     } else {
         Scaffold(
-            topBar = { TopBar(producto!!.title) { navigateToBack() } }
+            topBar = { TopBar(producto!!.title, user?.displayName!!) { navigateToBack() } }
         ) { innerPadding ->
             LazyColumn(
                 modifier = Modifier

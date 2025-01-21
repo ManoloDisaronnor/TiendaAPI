@@ -42,17 +42,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
 import com.manuelsantos.tiendamanuel.scaffold.TopBarTienda
 
 
 @Composable
-fun ProductosScreen(viewModel: ProductosViewModel, navigateToDetalle: (String) -> Unit) {
+fun ProductosScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToDetalle: (String) -> Unit) {
     val lista by viewModel.lista.observeAsState(emptyList())
     val progressBar by viewModel.progressBar.observeAsState(false)
+    val user = auth.getCurrentUser()
+
     Scaffold(
-        topBar = { TopBarTienda() }
+        topBar = { TopBarTienda(user?.displayName!!) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
