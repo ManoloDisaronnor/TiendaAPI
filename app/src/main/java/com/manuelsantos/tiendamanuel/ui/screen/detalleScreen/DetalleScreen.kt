@@ -65,7 +65,17 @@ fun DetalleScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToBa
         }
     } else {
         Scaffold(
-            topBar = { TopBar(producto!!.title, user?.displayName!!) { navigateToBack() } }
+            topBar = {
+                if (user?.email == null) {
+                    TopBar(producto!!.title,"Invitado") {
+                        navigateToBack()
+                    }
+                } else {
+                    TopBar(producto!!.title, user.displayName!!) {
+                        navigateToBack()
+                    }
+                }
+            }
         ) { innerPadding ->
             LazyColumn(
                 modifier = Modifier

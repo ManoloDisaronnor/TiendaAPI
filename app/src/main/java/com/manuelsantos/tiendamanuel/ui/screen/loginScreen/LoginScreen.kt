@@ -16,17 +16,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -59,7 +58,12 @@ import com.manuelsantos.tiendamanuel.ui.theme.Purple40
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSignUp: () -> Unit, navigateToForgotPassword: () -> Unit) {
+fun LoginScreen(
+    auth: AuthManager,
+    navigateToProductos: () -> Unit,
+    navigateToSignUp: () -> Unit,
+    navigateToForgotPassword: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var passwd by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -67,15 +71,21 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
     val authState by auth.authState.collectAsState()
 
     LaunchedEffect(authState) {
-        when(authState) {
+        when (authState) {
             is AuthManager.AuthRes.Success -> {
                 Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
                 auth.resetAuthState()
                 navigateToProductos()
             }
+
             is AuthManager.AuthRes.Error -> {
-                Toast.makeText(context, (authState as AuthManager.AuthRes.Error).errorMessage, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    (authState as AuthManager.AuthRes.Error).errorMessage,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
             is AuthManager.AuthRes.Idle -> {}
         }
     }
@@ -83,9 +93,11 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             Text(
                 text = stringResource(id = R.string.no_tienes_cuenta),
                 modifier = Modifier
@@ -155,7 +167,8 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
-                    modifier = Modifier.width(335.dp)
+                    modifier = Modifier
+                        .width(335.dp)
                         .height(50.dp),
                     onClick = {
                         scope.launch {
@@ -178,7 +191,7 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
 
                 Text(
                     text = stringResource(id = R.string.olvidado_contrasena),
-                    modifier = Modifier.clickable {navigateToForgotPassword()},
+                    modifier = Modifier.clickable { navigateToForgotPassword() },
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Default,
@@ -196,13 +209,17 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
 
                 Spacer(modifier = Modifier.height(25.dp))
 
+
                 BotonesGoogle(
                     onClick = {
-                        //TODO
+                        scope.launch {
+                            signAnonimously(auth)
+                        }
                     },
                     text = "Continuar como invitado",
                     icon = R.drawable.ic_incognito,
-                    color = Color(0xFF363636)
+                    color = Color(0xFF363636),
+                    cargando = auth.progressBarAnonimous.observeAsState().value?:false
                 )
 
                 Spacer(modifier = Modifier.height(15.dp))
@@ -213,47 +230,67 @@ fun LoginScreen(auth: AuthManager, navigateToProductos: () -> Unit, navigateToSi
                     },
                     text = "Continuar con Google",
                     icon = R.drawable.ic_google,
-                    color = Color(0xFFF1F1F1)
+                    color = Color(0xFFF1F1F1),
+                    cargando = auth.progressBarGoogle.observeAsState().value?:false
                 )
+
             }
         }
     }
 }
 
 @Composable
-fun BotonesGoogle(onClick: () -> Unit, text: String, icon: Int, color: Color) {
-    var click by remember { mutableStateOf(false) }
-    Surface(
-        onClick = onClick,
+fun BotonesGoogle(onClick: () -> Unit, text: String, icon: Int, color: Color, cargando: Boolean) {
+    Button(
+        onClick = { onClick() },
         modifier = Modifier
-            .padding(start = 40.dp, end = 40.dp)
-            .clickable { click = !click },
-        shape = RoundedCornerShape(50),
+            .width(335.dp)
+            .height(50.dp),
         border = BorderStroke(
-            width = 1.dp,
+            width = 2.dp,
             color = if (icon == R.drawable.ic_incognito) color else Color.Gray
         ),
-        color = color
+        colors = ButtonColors(
+            containerColor = color,
+            contentColor = if (icon == R.drawable.ic_incognito) Color.White else Color.Black,
+            disabledContainerColor = Color.Gray,
+            disabledContentColor = Color.Gray,
+        )
     ) {
-        Row(
-            modifier = Modifier
-                .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                modifier = Modifier.size(24.dp),
-                contentDescription = text,
-                tint = Color.Unspecified
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = text,
-                color = if (icon == R.drawable.ic_incognito) Color.White else Color.Black
-            )
-            click = true
+        if (cargando) {
+            if (icon == R.drawable.ic_incognito) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(30.dp),
+                    strokeWidth = 3.dp
+                )
+            } else {
+                CircularProgressIndicator(
+                    color = Color.Black,
+                    modifier = Modifier.size(30.dp),
+                    strokeWidth = 3.dp
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .padding(start = 6.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    modifier = Modifier.size(24.dp),
+                    contentDescription = text,
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = text,
+                    color = if (icon == R.drawable.ic_incognito) Color.White else Color.Black
+                )
+            }
         }
     }
 }
@@ -264,4 +301,11 @@ suspend fun signIn(auth: AuthManager, email: String, passwd: String, context: Co
     } else {
         Toast.makeText(context, "Complete los campos", Toast.LENGTH_SHORT).show()
     }
+}
+
+suspend fun signAnonimously(auth: AuthManager) {
+    // Cerramos la sesion antes de iniciar como anonimos
+    // Para evitar posibles intervenciones de la cache del sistema
+    auth.signOut()
+    auth.signAnonimously()
 }

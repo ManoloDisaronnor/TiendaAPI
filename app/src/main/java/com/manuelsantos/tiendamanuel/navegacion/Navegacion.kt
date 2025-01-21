@@ -24,7 +24,9 @@ fun Navegacion() {
         composable<Login> {
             LoginScreen(auth,
                 {
-                    navController.navigate(Productos)
+                    navController.navigate(Productos){
+                        popUpTo(Productos){ inclusive = true }
+                    }
                 },
                 {
                     navController.navigate(SignUp)

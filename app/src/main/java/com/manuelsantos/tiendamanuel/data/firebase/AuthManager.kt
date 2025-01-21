@@ -23,6 +23,12 @@ class AuthManager : ViewModel() {
     private val _progressBar: MutableLiveData<Boolean> = MutableLiveData(false)
     val progressBar: LiveData<Boolean> = _progressBar
 
+    private val _progressBarAnonimous: MutableLiveData<Boolean> = MutableLiveData(false)
+    val progressBarAnonimous: LiveData<Boolean> = _progressBarAnonimous
+
+    private val _progressBarGoogle: MutableLiveData<Boolean> = MutableLiveData(false)
+    val progressBarGoogle: LiveData<Boolean> = _progressBarGoogle
+
     suspend fun createUserWithEmailAndPassword(email: String, password: String, usuario: String) {
         _progressBar.value = true
         viewModelScope.launch {
@@ -68,6 +74,19 @@ class AuthManager : ViewModel() {
         }
     }
 
+    suspend fun signAnonimously() {
+        _progressBarAnonimous.value = true
+        viewModelScope.launch {
+            try {
+                auth.signInAnonymously().await()
+                _authState.value = AuthRes.Success(null)
+            } catch (e: Exception) {
+                _authState.value = AuthRes.Error(e.message ?: "Error al intentar iniciar sesion anonima")
+            }
+            _progressBarAnonimous.value = false
+        }
+    }
+
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
@@ -78,6 +97,10 @@ class AuthManager : ViewModel() {
     // ESTADO DE AUTH PARA LA SIGUIENTE OPERACION
     fun resetAuthState() {
         _authState.value = AuthRes.Idle
+    }
+
+    fun signOut() {
+        auth.signOut()
     }
 
     sealed class AuthRes<out T> {

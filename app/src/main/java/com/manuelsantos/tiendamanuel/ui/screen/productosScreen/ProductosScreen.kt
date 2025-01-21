@@ -55,7 +55,13 @@ fun ProductosScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateTo
     val user = auth.getCurrentUser()
 
     Scaffold(
-        topBar = { TopBarTienda(user?.displayName!!) }
+        topBar = {
+            if (user?.email == null) {
+                TopBarTienda("Invitado")
+            } else {
+                TopBarTienda(user.displayName!!)
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
