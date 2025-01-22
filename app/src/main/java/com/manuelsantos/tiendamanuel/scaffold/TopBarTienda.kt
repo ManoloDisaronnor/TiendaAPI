@@ -1,8 +1,11 @@
 package com.manuelsantos.tiendamanuel.scaffold
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +23,6 @@ import androidx.compose.material.icons.filled.Shop
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -76,7 +78,7 @@ fun TopBarTienda(nombre: String) {
                     .clickable { expanded = !expanded }
                     .padding(12.dp)
                     .animateContentSize(
-                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
                     )
             ) {
                 Icon(
@@ -86,8 +88,15 @@ fun TopBarTienda(nombre: String) {
                 )
                 if (expanded) {
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                }
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = fadeIn(animationSpec = tween(100)),
+                    exit = fadeOut(animationSpec = tween(250))
+                ) {
                     Text(nombre, color = Color.Black)
                 }
+
             }
             DropdownMenu(
                 modifier = Modifier.width(150.dp),
@@ -96,7 +105,10 @@ fun TopBarTienda(nombre: String) {
             ) {
                 DropdownMenuItem(
                     text = {
-                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
                             Text("Perfil", textAlign = TextAlign.End)
                         }
                     },
@@ -107,7 +119,10 @@ fun TopBarTienda(nombre: String) {
                 )
                 DropdownMenuItem(
                     text = {
-                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
                             Text("Cerrar sesión", textAlign = TextAlign.End, color = Color.Red)
                         }
                     },

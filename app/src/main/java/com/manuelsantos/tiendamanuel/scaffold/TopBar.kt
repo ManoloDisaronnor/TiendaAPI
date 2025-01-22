@@ -1,8 +1,11 @@
 package com.manuelsantos.tiendamanuel.scaffold
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -70,7 +73,7 @@ fun TopBar(
                     .clickable { expanded = !expanded }
                     .padding(12.dp)
                     .animateContentSize(
-                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
                     )
             ) {
                 Icon(
@@ -80,6 +83,12 @@ fun TopBar(
                 )
                 if (expanded) {
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                }
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = fadeIn(animationSpec = tween(100)),
+                    exit = fadeOut(animationSpec = tween(250))
+                ) {
                     Text(nombre, color = Color.Black)
                 }
             }
