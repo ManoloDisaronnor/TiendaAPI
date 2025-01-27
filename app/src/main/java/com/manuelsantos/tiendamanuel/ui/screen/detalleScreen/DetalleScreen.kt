@@ -51,7 +51,12 @@ import com.manuelsantos.tiendamanuel.scaffold.TopBar
 import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
 
 @Composable
-fun DetalleScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToBack: () -> Unit) {
+fun DetalleScreen(
+    auth: AuthManager,
+    viewModel: ProductosViewModel,
+    navigateToBack: () -> Unit,
+    navigateToLogin: () -> Unit
+) {
     val producto by viewModel.producto.observeAsState()
     val progressBar by viewModel.progressBar.observeAsState(false)
     val user = auth.getCurrentUser()
@@ -66,15 +71,20 @@ fun DetalleScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToBa
     } else {
         Scaffold(
             topBar = {
-                if (user?.email == null) {
-                    TopBar(producto!!.title,"Invitado") {
-                        navigateToBack()
-                    }
+                val nombre = if (user?.email == null) {
+                    "Invitado"
                 } else {
-                    TopBar(producto!!.title, user.displayName!!) {
-                        navigateToBack()
-                    }
+                    user.displayName?.split(" ")?.firstOrNull() ?: "Usuario"
                 }
+
+                TopBar(producto!!.title, nombre, auth,
+                    {
+                        navigateToBack()
+                    },
+                    {
+                        navigateToLogin()
+                    }
+                )
             }
         ) { innerPadding ->
             LazyColumn(
@@ -100,7 +110,8 @@ fun DetalleScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToBa
 @Composable
 private fun Imagen(producto: MediaItem) {
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .height(500.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -148,7 +159,8 @@ private fun CargarDetalles(producto: MediaItem) {
     )
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(vertical = 16.dp)
     ) {
         Row(
@@ -210,7 +222,8 @@ private fun CargarDetalles(producto: MediaItem) {
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .clickable {}
                 .border(1.dp, Color(0xFF414141))
                 .padding(vertical = 16.dp)

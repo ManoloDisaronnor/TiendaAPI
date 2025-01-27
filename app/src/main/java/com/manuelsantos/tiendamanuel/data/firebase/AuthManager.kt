@@ -1,14 +1,24 @@
 package com.manuelsantos.tiendamanuel.data.firebase
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
+import com.manuelsantos.tiendamanuel.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -28,6 +38,8 @@ class AuthManager : ViewModel() {
 
     private val _progressBarGoogle: MutableLiveData<Boolean> = MutableLiveData(false)
     val progressBarGoogle: LiveData<Boolean> = _progressBarGoogle
+
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     suspend fun createUserWithEmailAndPassword(email: String, password: String, usuario: String) {
         _progressBar.value = true
@@ -87,6 +99,33 @@ class AuthManager : ViewModel() {
         }
     }
 
+    fun initializeGoogleSignIn(context: Context) {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(context, gso)
+    }
+
+    fun getGoogleSignInIntent(): Intent {
+        return googleSignInClient.signInIntent
+    }
+
+    suspend fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) {
+        _progressBarGoogle.value = true
+        viewModelScope.launch {
+            _authState.value = try {
+                val account = task.getResult(ApiException::class.java)
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                val authResult = auth.signInWithCredential(credential).await()
+                AuthRes.Success(authResult.user)
+            } catch (e: Exception) {
+                AuthRes.Error(e.message ?: "Error al iniciar sesión con Google")
+            }
+            _progressBarGoogle.value = false
+        }
+    }
+
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
@@ -101,6 +140,7 @@ class AuthManager : ViewModel() {
 
     fun signOut() {
         auth.signOut()
+        googleSignInClient.signOut()
     }
 
     sealed class AuthRes<out T> {

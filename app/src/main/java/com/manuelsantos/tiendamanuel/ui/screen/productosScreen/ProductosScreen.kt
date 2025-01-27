@@ -49,17 +49,26 @@ import com.manuelsantos.tiendamanuel.scaffold.TopBarTienda
 
 
 @Composable
-fun ProductosScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateToDetalle: (String) -> Unit) {
+fun ProductosScreen(
+    auth: AuthManager,
+    viewModel: ProductosViewModel,
+    navigateToDetalle: (String) -> Unit,
+    navigateToLogin: () -> Unit
+) {
     val lista by viewModel.lista.observeAsState(emptyList())
     val progressBar by viewModel.progressBar.observeAsState(false)
     val user = auth.getCurrentUser()
 
     Scaffold(
         topBar = {
-            if (user?.email == null) {
-                TopBarTienda("Invitado")
+            val nombre = if (user?.email == null) {
+                "Invitado"
             } else {
-                TopBarTienda(user.displayName!!)
+                user.displayName?.split(" ")?.firstOrNull() ?: "Usuario"
+            }
+
+            TopBarTienda(nombre, auth) {
+                navigateToLogin()
             }
         }
     ) { innerPadding ->
@@ -103,7 +112,8 @@ fun ProductosScreen(auth: AuthManager, viewModel: ProductosViewModel, navigateTo
 @Composable
 private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (String) -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(14.dp)
             .border(
                 width = 0.dp,

@@ -38,13 +38,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     nombreProducto: String,
     nombre: String,
-    onBackClick: () -> Unit
+    auth: AuthManager,
+    onBackClick: () -> Unit,
+    navigateToLogin: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     TopAppBar(
@@ -98,6 +101,7 @@ fun TopBar(
                 onDismissRequest = { expanded = false }
             ) {
                 DropdownMenuItem(
+                    modifier = Modifier.align(Alignment.End),
                     text = {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                             Text("Perfil", textAlign = TextAlign.End)
@@ -109,6 +113,7 @@ fun TopBar(
                     }
                 )
                 DropdownMenuItem(
+                    modifier = Modifier.align(Alignment.End),
                     text = {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                             Text("Cerrar sesión", textAlign = TextAlign.End, color = Color.Red)
@@ -116,7 +121,8 @@ fun TopBar(
                     },
                     onClick = {
                         expanded = false
-                        // Acción para cerrar sesión
+                        auth.signOut()
+                        navigateToLogin()
                     }
                 )
             }

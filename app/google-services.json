@@ -12,7 +12,20 @@
           "package_name": "com.manuelsantos.tiendamanuel"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "358587631615-rm9qqob9aubsk4golqh3e5k1n793l9fi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manuelsantos.tiendamanuel",
+            "certificate_hash": "35c166da6e0f78e626a7abc1b48285afd6576086"
+          }
+        },
+        {
+          "client_id": "358587631615-nut97pt6a84c3t1v16btrqb9mo7fv01e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyALvNTpFmdj9HF-8SN87KSB-2HUrNZQDz4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "358587631615-nut97pt6a84c3t1v16btrqb9mo7fv01e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

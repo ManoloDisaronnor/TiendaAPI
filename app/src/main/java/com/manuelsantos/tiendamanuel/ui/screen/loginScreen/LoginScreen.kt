@@ -2,6 +2,8 @@ package com.manuelsantos.tiendamanuel.ui.screen.loginScreen
 
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -52,9 +54,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.ui.theme.Purple40
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -69,243 +74,258 @@ fun LoginScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val authState by auth.authState.collectAsState()
-
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthManager.AuthRes.Success -> {
-                Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
-                auth.resetAuthState()
-                navigateToProductos()
-            }
-
-            is AuthManager.AuthRes.Error -> {
-                Toast.makeText(
-                    context,
-                    (authState as AuthManager.AuthRes.Error).errorMessage,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            is AuthManager.AuthRes.Idle -> {}
+    val googleSignLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        CoroutineScope(Dispatchers.Main).launch {
+            auth.handleGoogleSignInResult(task)
         }
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Text(
-                text = stringResource(id = R.string.no_tienes_cuenta),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 40.dp)
-                    .clickable { navigateToSignUp() },
-                style = TextStyle(
-                    color = Purple40,
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily.Default,
-                    textDecoration = TextDecoration.Underline
-                )
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 40.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_tienda),
-                    contentDescription = "Logo Telares del sur",
-                    modifier = Modifier.size(200.dp)
-                )
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = stringResource(R.string.title_login),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    fontFamily = FontFamily.Monospace
-                )
-
-                Spacer(modifier = Modifier.height(50.dp))
-
-                TextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Correo") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.width(335.dp),
-                    leadingIcon = {
-                        Icon(Icons.Default.Mail, contentDescription = "Ícono de email")
-                    },
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                TextField(
-                    value = passwd,
-                    onValueChange = { passwd = it },
-                    label = { Text("Contraseña") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.width(335.dp),
-                    leadingIcon = {
-                        Icon(Icons.Default.Lock, contentDescription = "Ícono de password")
-                    },
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    modifier = Modifier
-                        .width(335.dp)
-                        .height(50.dp),
-                    onClick = {
-                        scope.launch {
-                            signIn(auth, email, passwd, context)
-                        }
-                    },
-                ) {
-                    if (auth.progressBar.observeAsState().value == true) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            modifier = Modifier.size(30.dp),
-                            strokeWidth = 3.dp
-                        )
-                    } else {
-                        Text(stringResource(R.string.acceder))
-                    }
+        LaunchedEffect(authState) {
+            when (authState) {
+                is AuthManager.AuthRes.Success -> {
+                    Toast.makeText(context, "Inicio de sesion exitoso", Toast.LENGTH_SHORT).show()
+                    auth.resetAuthState()
+                    navigateToProductos()
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                is AuthManager.AuthRes.Error -> {
+                    Toast.makeText(
+                        context,
+                        (authState as AuthManager.AuthRes.Error).errorMessage,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
 
+                is AuthManager.AuthRes.Idle -> {}
+            }
+        }
+
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
                 Text(
-                    text = stringResource(id = R.string.olvidado_contrasena),
-                    modifier = Modifier.clickable { navigateToForgotPassword() },
+                    text = stringResource(id = R.string.no_tienes_cuenta),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 40.dp)
+                        .clickable { navigateToSignUp() },
                     style = TextStyle(
+                        color = Purple40,
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Default,
-                        textDecoration = TextDecoration.Underline,
-                        color = Purple40
+                        textDecoration = TextDecoration.Underline
                     )
                 )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 40.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_tienda),
+                        contentDescription = "Logo Telares del sur",
+                        modifier = Modifier.size(200.dp)
+                    )
 
-                Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                Text(
-                    text = stringResource(id = R.string.divisor),
-                    style = TextStyle(color = Color.Gray)
-                )
+                    Text(
+                        text = stringResource(R.string.title_login),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        fontFamily = FontFamily.Monospace
+                    )
 
-                Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(50.dp))
 
+                    TextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Correo") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.width(335.dp),
+                        leadingIcon = {
+                            Icon(Icons.Default.Mail, contentDescription = "Ícono de email")
+                        },
+                        singleLine = true
+                    )
 
-                BotonesGoogle(
-                    onClick = {
-                        scope.launch {
-                            signAnonimously(auth)
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    TextField(
+                        value = passwd,
+                        onValueChange = { passwd = it },
+                        label = { Text("Contraseña") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.width(335.dp),
+                        leadingIcon = {
+                            Icon(Icons.Default.Lock, contentDescription = "Ícono de password")
+                        },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        modifier = Modifier
+                            .width(335.dp)
+                            .height(50.dp),
+                        onClick = {
+                            scope.launch {
+                                signIn(auth, email, passwd, context)
+                            }
+                        },
+                    ) {
+                        if (auth.progressBar.observeAsState().value == true) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(30.dp),
+                                strokeWidth = 3.dp
+                            )
+                        } else {
+                            Text(stringResource(R.string.acceder))
                         }
-                    },
-                    text = "Continuar como invitado",
-                    icon = R.drawable.ic_incognito,
-                    color = Color(0xFF363636),
-                    cargando = auth.progressBarAnonimous.observeAsState().value?:false
-                )
+                    }
 
-                Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                BotonesGoogle(
-                    onClick = {
-                        //TODO
-                    },
-                    text = "Continuar con Google",
-                    icon = R.drawable.ic_google,
-                    color = Color(0xFFF1F1F1),
-                    cargando = auth.progressBarGoogle.observeAsState().value?:false
-                )
+                    Text(
+                        text = stringResource(id = R.string.olvidado_contrasena),
+                        modifier = Modifier.clickable { navigateToForgotPassword() },
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Default,
+                            textDecoration = TextDecoration.Underline,
+                            color = Purple40
+                        )
+                    )
 
+                    Spacer(modifier = Modifier.height(25.dp))
+
+                    Text(
+                        text = stringResource(id = R.string.divisor),
+                        style = TextStyle(color = Color.Gray)
+                    )
+
+                    Spacer(modifier = Modifier.height(25.dp))
+
+
+                    BotonesGoogle(
+                        onClick = {
+                            scope.launch {
+                                signAnonimously(auth)
+                            }
+                        },
+                        text = "Continuar como invitado",
+                        icon = R.drawable.ic_incognito,
+                        color = Color(0xFF363636),
+                        cargando = auth.progressBarAnonimous.observeAsState().value ?: false
+                    )
+
+                    Spacer(modifier = Modifier.height(15.dp))
+
+                    BotonesGoogle(
+                        onClick = {
+                            googleSignLauncher.launch(auth.getGoogleSignInIntent())
+                        },
+                        text = "Continuar con Google",
+                        icon = R.drawable.ic_google,
+                        color = Color(0xFFF1F1F1),
+                        cargando = auth.progressBarGoogle.observeAsState().value ?: false
+                    )
+
+                }
             }
         }
     }
-}
 
-@Composable
-fun BotonesGoogle(onClick: () -> Unit, text: String, icon: Int, color: Color, cargando: Boolean) {
-    Button(
-        onClick = { onClick() },
-        modifier = Modifier
-            .width(335.dp)
-            .height(50.dp),
-        border = BorderStroke(
-            width = 2.dp,
-            color = if (icon == R.drawable.ic_incognito) color else Color.Gray
-        ),
-        colors = ButtonColors(
-            containerColor = color,
-            contentColor = if (icon == R.drawable.ic_incognito) Color.White else Color.Black,
-            disabledContainerColor = Color.Gray,
-            disabledContentColor = Color.Gray,
-        )
+    @Composable
+    fun BotonesGoogle(
+        onClick: () -> Unit,
+        text: String,
+        icon: Int,
+        color: Color,
+        cargando: Boolean
     ) {
-        if (cargando) {
-            if (icon == R.drawable.ic_incognito) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    modifier = Modifier.size(30.dp),
-                    strokeWidth = 3.dp
-                )
+        Button(
+            onClick = { onClick() },
+            modifier = Modifier
+                .width(335.dp)
+                .height(50.dp),
+            border = BorderStroke(
+                width = 2.dp,
+                color = if (icon == R.drawable.ic_incognito) color else Color.Gray
+            ),
+            colors = ButtonColors(
+                containerColor = color,
+                contentColor = if (icon == R.drawable.ic_incognito) Color.White else Color.Black,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.Gray,
+            )
+        ) {
+            if (cargando) {
+                if (icon == R.drawable.ic_incognito) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(30.dp),
+                        strokeWidth = 3.dp
+                    )
+                } else {
+                    CircularProgressIndicator(
+                        color = Color.Black,
+                        modifier = Modifier.size(30.dp),
+                        strokeWidth = 3.dp
+                    )
+                }
             } else {
-                CircularProgressIndicator(
-                    color = Color.Black,
-                    modifier = Modifier.size(30.dp),
-                    strokeWidth = 3.dp
-                )
-            }
-        } else {
-            Row(
-                modifier = Modifier
-                    .padding(start = 6.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = icon),
-                    modifier = Modifier.size(24.dp),
-                    contentDescription = text,
-                    tint = Color.Unspecified
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = text,
-                    color = if (icon == R.drawable.ic_incognito) Color.White else Color.Black
-                )
+                Row(
+                    modifier = Modifier
+                        .padding(start = 6.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = icon),
+                        modifier = Modifier.size(24.dp),
+                        contentDescription = text,
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = text,
+                        color = if (icon == R.drawable.ic_incognito) Color.White else Color.Black
+                    )
+                }
             }
         }
     }
-}
 
-suspend fun signIn(auth: AuthManager, email: String, passwd: String, context: Context) {
-    if (email.isNotEmpty() && passwd.isNotEmpty()) {
-        auth.signInWithEmailAndPassword(email, passwd)
-    } else {
-        Toast.makeText(context, "Complete los campos", Toast.LENGTH_SHORT).show()
+    suspend fun signIn(auth: AuthManager, email: String, passwd: String, context: Context) {
+        if (email.isNotEmpty() && passwd.isNotEmpty()) {
+            auth.signInWithEmailAndPassword(email, passwd)
+        } else {
+            Toast.makeText(context, "Complete los campos", Toast.LENGTH_SHORT).show()
+        }
     }
-}
 
-suspend fun signAnonimously(auth: AuthManager) {
-    // Cerramos la sesion antes de iniciar como anonimos
-    // Para evitar posibles intervenciones de la cache del sistema
-    auth.signOut()
-    auth.signAnonimously()
-}
+    suspend fun signAnonimously(auth: AuthManager) {
+        // Cerramos la sesion antes de iniciar como anonimos
+        // Para evitar posibles intervenciones de la cache del sistema
+        auth.signOut()
+        auth.signAnonimously()
+    }

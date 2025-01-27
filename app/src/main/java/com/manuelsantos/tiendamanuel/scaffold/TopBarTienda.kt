@@ -42,10 +42,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.R
+import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarTienda(nombre: String) {
+fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     TopAppBar(
         title = {
@@ -128,7 +129,8 @@ fun TopBarTienda(nombre: String) {
                     },
                     onClick = {
                         expanded = false
-                        // Acción para cerrar sesión
+                        auth.signOut()
+                        navigateToLogin()
                     }
                 )
             }
