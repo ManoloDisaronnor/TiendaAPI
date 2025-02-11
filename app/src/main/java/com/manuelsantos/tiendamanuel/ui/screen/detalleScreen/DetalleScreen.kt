@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -46,22 +47,27 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
-import com.manuelsantos.tiendamanuel.data.model.MediaItem
+import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.data.repositories.model.ProductoItem
 import com.manuelsantos.tiendamanuel.scaffold.TopBar
-import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
 
 @Composable
 fun DetalleScreen(
     auth: AuthManager,
-    viewModel: ProductosViewModel,
+    viewModel: FirestoreViewModel,
+    id: String,
     navigateToBack: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
-    val producto by viewModel.producto.observeAsState()
-    val progressBar by viewModel.progressBar.observeAsState(false)
+    val producto by viewModel.firestoreProduct.observeAsState()
+    val progressBar by viewModel.isLoading.observeAsState(true)
     val user = auth.getCurrentUser()
 
-    if (progressBar) {
+    LaunchedEffect(Unit) {
+        viewModel.cargarProductoPorId(id)
+    }
+
+    if (progressBar || producto == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -71,19 +77,13 @@ fun DetalleScreen(
     } else {
         Scaffold(
             topBar = {
-                val nombre = if (user?.email == null) {
-                    "Invitado"
-                } else {
-                    user.displayName?.split(" ")?.firstOrNull() ?: "Usuario"
-                }
-
-                TopBar(producto!!.title, nombre, auth,
-                    {
-                        navigateToBack()
-                    },
-                    {
-                        navigateToLogin()
-                    }
+                val nombre = user?.displayName?.split(" ")?.firstOrNull() ?: "Invitado"
+                TopBar(
+                    producto!!.title,
+                    nombre,
+                    auth,
+                    navigateToBack,
+                    navigateToLogin
                 )
             }
         ) { innerPadding ->
@@ -103,12 +103,11 @@ fun DetalleScreen(
                 }
             }
         }
-
     }
 }
 
 @Composable
-private fun Imagen(producto: MediaItem) {
+private fun Imagen(producto: ProductoItem) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -150,7 +149,7 @@ private fun Imagen(producto: MediaItem) {
 }
 
 @Composable
-private fun CargarDetalles(producto: MediaItem) {
+private fun CargarDetalles(producto: ProductoItem) {
     var isClicked by remember { mutableStateOf(false) }
 
     val rotation by animateFloatAsState(

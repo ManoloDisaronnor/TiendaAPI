@@ -48,6 +48,7 @@ import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 @Composable
 fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
             Text(

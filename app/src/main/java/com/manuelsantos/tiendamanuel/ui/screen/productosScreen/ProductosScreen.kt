@@ -41,22 +41,27 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
-import com.manuelsantos.tiendamanuel.data.model.MediaItem
-import com.manuelsantos.tiendamanuel.data.model.ProductosViewModel
+import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.data.repositories.model.ProductoItem
 import com.manuelsantos.tiendamanuel.scaffold.TopBarTienda
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun ProductosScreen(
     auth: AuthManager,
-    viewModel: ProductosViewModel,
+    viewModel: FirestoreViewModel,
     navigateToDetalle: (String) -> Unit,
     navigateToLogin: () -> Unit
 ) {
-    val lista by viewModel.lista.observeAsState(emptyList())
-    val progressBar by viewModel.progressBar.observeAsState(false)
+    val lista by viewModel.firestoreProducts.observeAsState(emptyList())
+    val progressBar by viewModel.isLoading.observeAsState(false)
     val user = auth.getCurrentUser()
 
     Scaffold(
@@ -99,7 +104,7 @@ fun ProductosScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(lista) { mediaItem ->
-                            MediaItemCard(mediaItem, navigateToDetalle)
+                            MediaItemCard(mediaItem, viewModel, user!!.uid, navigateToDetalle)
                         }
                     }
                 }
@@ -110,7 +115,12 @@ fun ProductosScreen(
 }
 
 @Composable
-private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (String) -> Unit) {
+private fun MediaItemCard(
+    productoItem: ProductoItem,
+    viewModelFirestore: FirestoreViewModel,
+    idUsuario: String,
+    navigateToDetalle: (String) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,18 +133,18 @@ private fun MediaItemCard(mediaItem: MediaItem, navigateToDetalle: (String) -> U
             .clip(RoundedCornerShape(16.dp))
             .padding(8.dp)
             .clickable {
-                navigateToDetalle(mediaItem.id.toString())
+                navigateToDetalle(productoItem.id.toString())
             },
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Imagen(item = mediaItem)
-        Titulo(item = mediaItem)
+        Imagen(item = productoItem)
+        Titulo(item = productoItem, viewModelFirestore = viewModelFirestore, userid = idUsuario)
     }
 }
 
 @Composable
-private fun Imagen(item: MediaItem, modifier: Modifier = Modifier) {
+private fun Imagen(item: ProductoItem, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -150,10 +160,11 @@ private fun Imagen(item: MediaItem, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Titulo(item: MediaItem) {
+private fun Titulo(item: ProductoItem, viewModelFirestore: FirestoreViewModel, userid: String) {
     // Introduzco algunas variables y funciones extras para que el icono del carrito se anime al hacer click
     // (No tiene ninguna otra funcionalidad extra)
     var isClicked by remember { mutableStateOf(false) }
+    val progressBar by viewModelFirestore.isLoading.observeAsState(false)
 
     // Animación del icono
     val rotation by animateFloatAsState(
@@ -198,27 +209,33 @@ private fun Titulo(item: MediaItem) {
         Button(
             onClick = {
                 isClicked = !isClicked
+                viewModelFirestore.addCarrito(item, userid)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier.padding(8.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Añadir al carrito",
-                    modifier = Modifier
-                        .graphicsLayer {
-                            rotationZ = rotation
-                        }
-                )
+            if (progressBar) {
+                CircularProgressIndicator()
+            } else {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Añadir al carrito",
+                        modifier = Modifier
+                            .graphicsLayer {
+                                rotationZ = rotation
+                            }
+                    )
 
-                Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
 
-                Text("Añadir al carrito")
+                    Text("Añadir al carrito")
+                }
             }
+
         }
     }
 }

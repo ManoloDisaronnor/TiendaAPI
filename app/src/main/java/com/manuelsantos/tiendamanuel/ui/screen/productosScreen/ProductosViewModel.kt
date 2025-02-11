@@ -1,9 +1,10 @@
-package com.manuelsantos.tiendamanuel.data.model
+package com.manuelsantos.tiendamanuel.ui.screen.productosScreen
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.data.repositories.RemoteConnection
 import com.manuelsantos.tiendamanuel.data.repositories.model.toMediaItem
 import kotlinx.coroutines.launch

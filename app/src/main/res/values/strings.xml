@@ -10,4 +10,5 @@
     <string name="olvidado_contrasena">¿Has olvidado tu contraseña?</string>
     <string name="no_tienes_cuenta">¿Aún no tienes cuenta? Registrate</string>
     <string name="divisor">-------- otros metodos --------</string>
+    <string name="cargando">Ten paciencia, Telares del Sur esta cargando</string>
 </resources>
