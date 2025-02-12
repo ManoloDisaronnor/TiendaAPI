@@ -9,17 +9,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Shop
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +53,7 @@ import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 @Composable
 fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    val numeroCarrito = 3
 
     TopAppBar(
         title = {
@@ -83,11 +89,31 @@ fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit)
                         animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
                     )
             ) {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Boton usuario",
-                    tint = Color(0xff000000)
-                )
+                if (numeroCarrito > 0) {
+                    Box(modifier = Modifier) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Boton usuario",
+                            tint = Color(0xff000000),
+                        )
+
+                        // Badge rojo con número
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .offset(x = 8.dp, y = (-8).dp)
+                                .background(Color.Red, CircleShape)
+                                .size(8.dp)
+                        )
+                    }
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "Boton usuario",
+                        tint = Color(0xff000000),
+                    )
+                }
+
                 if (expanded) {
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                 }
@@ -98,20 +124,26 @@ fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit)
                 ) {
                     Text(nombre, color = Color.Black)
                 }
-
             }
             DropdownMenu(
-                modifier = Modifier.width(150.dp),
+                modifier = Modifier.width(175.dp),
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
                 DropdownMenuItem(
+                    modifier = Modifier.align(Alignment.End),
                     text = {
-                        Box(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.CenterEnd
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Perfil", textAlign = TextAlign.End)
+                            Spacer(modifier = Modifier.padding(8.dp))
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = "Perfil",
+                            )
                         }
                     },
                     onClick = {
@@ -120,16 +152,63 @@ fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit)
                     }
                 )
                 DropdownMenuItem(
+                    modifier = Modifier.align(Alignment.End),
                     text = {
-                        Box(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.CenterEnd
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Cerrar sesión", textAlign = TextAlign.End, color = Color.Red)
+                            Text("Carrito", textAlign = TextAlign.End, fontSize = 15.sp)
+                            Spacer(modifier = Modifier.padding(8.dp))
+                            Box{
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = "Carrito",
+                                )
+                                if (numeroCarrito > 0) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = 8.dp, y = (-4).dp)
+                                            .background(Color.Red, CircleShape)
+                                            .size(18.dp)
+                                    ) {
+                                        Text(
+                                            text = numeroCarrito.toString(),
+                                            color = Color.White,
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
+                                }
+                            }
+
                         }
                     },
                     onClick = {
                         expanded = false
+                    }
+                )
+                DropdownMenuItem(
+                    modifier = Modifier.align(Alignment.End),
+                    text = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Cerrar sesión", textAlign = TextAlign.End, color = Color.Red)
+                            Spacer(modifier = Modifier.padding(8.dp))
+                            Icon(
+                                imageVector = Icons.Default.Logout,
+                                contentDescription = "Cerrar sesión",
+                                tint = Color.Red
+                            )
+                        }
+                    },
+                    onClick = {
                         auth.signOut()
                         navigateToLogin()
                     }

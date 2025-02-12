@@ -169,7 +169,9 @@ fun Navegacion(
                     },
                     {
                         navController.navigate(Login) {
-                            popUpTo(Detalle) { inclusive = true }
+                            popUpTo(Detalle(id)) {
+                                inclusive = true
+                            }
                         }
                     }
                 )

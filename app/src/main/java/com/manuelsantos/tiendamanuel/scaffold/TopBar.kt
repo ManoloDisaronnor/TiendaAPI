@@ -186,7 +186,6 @@ fun TopBar(
                     },
                     onClick = {
                         expanded = false
-                        // Acción para ir al perfil
                     }
                 )
                 DropdownMenuItem(
@@ -207,7 +206,6 @@ fun TopBar(
                         }
                     },
                     onClick = {
-                        expanded = false
                         auth.signOut()
                         navigateToLogin()
                     }

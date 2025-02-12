@@ -67,7 +67,7 @@ fun DetalleScreen(
         viewModel.cargarProductoPorId(id)
     }
 
-    if (progressBar || producto == null) {
+    if (progressBar || producto == null || user == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -77,13 +77,17 @@ fun DetalleScreen(
     } else {
         Scaffold(
             topBar = {
-                val nombre = user?.displayName?.split(" ")?.firstOrNull() ?: "Invitado"
+                val nombre = user.displayName?.split(" ")?.firstOrNull() ?: "Invitado"
                 TopBar(
                     producto!!.title,
                     nombre,
                     auth,
-                    navigateToBack,
-                    navigateToLogin
+                    {
+                        navigateToBack()
+                    },
+                    {
+                        navigateToLogin()
+                    }
                 )
             }
         ) { innerPadding ->

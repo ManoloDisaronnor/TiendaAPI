@@ -64,53 +64,54 @@ fun ProductosScreen(
     val progressBar by viewModel.isLoading.observeAsState(false)
     val user = auth.getCurrentUser()
 
-    Scaffold(
-        topBar = {
-            val nombre = if (user?.email == null) {
-                "Invitado"
-            } else {
-                user.displayName?.split(" ")?.firstOrNull() ?: "Usuario"
-            }
-
-            TopBarTienda(nombre, auth) {
-                navigateToLogin()
-            }
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            if (progressBar) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+    if (user != null) {
+        Scaffold(
+            topBar = {
+                val nombre = if (user.email == null) {
+                    "Invitado"
+                } else {
+                    user.displayName?.split(" ")?.firstOrNull() ?: "Usuario"
                 }
-            } else {
-                if (lista.isEmpty()) {
+
+                TopBarTienda(nombre, auth) {
+                    navigateToLogin()
+                }
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                if (progressBar) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No hay elementos", style = MaterialTheme.typography.bodySmall)
+                        CircularProgressIndicator()
                     }
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(lista) { mediaItem ->
-                            MediaItemCard(mediaItem, viewModel, user!!.uid, navigateToDetalle)
+                    if (lista.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No hay elementos", style = MaterialTheme.typography.bodySmall)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            items(lista) { mediaItem ->
+                                MediaItemCard(mediaItem, viewModel, user!!.uid, navigateToDetalle)
+                            }
                         }
                     }
                 }
             }
         }
-
     }
 }
 
