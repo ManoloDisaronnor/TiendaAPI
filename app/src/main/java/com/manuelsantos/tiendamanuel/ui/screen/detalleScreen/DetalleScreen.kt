@@ -83,6 +83,7 @@ fun DetalleScreen(
                     producto!!.title,
                     nombre,
                     auth,
+                    viewModelFirestore = viewModel,
                     {
                         navigateToBack()
                     },
@@ -107,7 +108,7 @@ fun DetalleScreen(
             ) {
                 item {
                     Imagen(producto!!)
-                    CargarDetalles(producto!!)
+                    CargarDetalles(producto!!, viewModel, user.uid)
                 }
             }
         }
@@ -157,8 +158,9 @@ private fun Imagen(producto: ProductoItem) {
 }
 
 @Composable
-private fun CargarDetalles(producto: ProductoItem) {
+private fun CargarDetalles(producto: ProductoItem, viewModelFirestore: FirestoreViewModel, userid: String) {
     var isClicked by remember { mutableStateOf(false) }
+    val progressBar by viewModelFirestore.isLoading.observeAsState(false)
 
     val rotation by animateFloatAsState(
         targetValue = if (isClicked) 360f else 0f,
@@ -274,27 +276,33 @@ private fun CargarDetalles(producto: ProductoItem) {
         Button(
             onClick = {
                 isClicked = !isClicked
+                viewModelFirestore.addCarrito(producto, userid)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier.padding(8.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Añadir al carrito",
-                    modifier = Modifier
-                        .graphicsLayer {
-                            rotationZ = rotation
-                        }
-                )
+            if (progressBar) {
+                CircularProgressIndicator()
+            } else {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Añadir al carrito",
+                        modifier = Modifier
+                            .graphicsLayer {
+                                rotationZ = rotation
+                            }
+                    )
 
-                Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
 
-                Text("Añadir al carrito")
+                    Text("Añadir al carrito")
+                }
             }
+
         }
     }
 }

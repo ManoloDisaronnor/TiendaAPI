@@ -33,7 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
+import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,12 +55,18 @@ fun TopBar(
     nombreProducto: String,
     nombre: String,
     auth: AuthManager,
+    viewModelFirestore: FirestoreViewModel,
     onBackClick: () -> Unit,
     navigateToProfile: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val numeroCarrito = 0 // Número hardcodeado
+    val numeroCarrito by viewModelFirestore.numeroElementosCarrito.observeAsState(0)
+
+    LaunchedEffect(Unit) {
+        viewModelFirestore.getNumeroElementosCarrito(auth.getCurrentUser()?.uid)
+    }
+
     TopAppBar(
         title = {
             Text(

@@ -77,6 +77,7 @@ fun ProductosScreen(
                 TopBarTienda(
                     nombre,
                     auth,
+                    viewModelFirestore = viewModel,
                     {
                         navigateToProfile()
                     },

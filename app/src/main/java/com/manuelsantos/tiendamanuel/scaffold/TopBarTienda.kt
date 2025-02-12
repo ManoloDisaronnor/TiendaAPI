@@ -34,7 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,12 +50,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
+import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarTienda(nombre: String, auth: AuthManager, navigateToProfile: () -> Unit, navigateToLogin: () -> Unit) {
+fun TopBarTienda(
+    nombre: String,
+    auth: AuthManager,
+    viewModelFirestore: FirestoreViewModel,
+    navigateToProfile: () -> Unit,
+    navigateToLogin: () -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    val numeroCarrito = 3
+    val numeroCarrito by viewModelFirestore.numeroElementosCarrito.observeAsState(0)
+
+    LaunchedEffect(Unit) {
+        viewModelFirestore.getNumeroElementosCarrito(auth.getCurrentUser()?.uid)
+    }
 
     TopAppBar(
         title = {
@@ -161,7 +174,7 @@ fun TopBarTienda(nombre: String, auth: AuthManager, navigateToProfile: () -> Uni
                         ) {
                             Text("Carrito", textAlign = TextAlign.End, fontSize = 15.sp)
                             Spacer(modifier = Modifier.padding(8.dp))
-                            Box{
+                            Box {
                                 Icon(
                                     imageVector = Icons.Default.ShoppingCart,
                                     contentDescription = "Carrito",

@@ -111,4 +111,17 @@ class FirestoreManager(auth: AuthManager, context: Context) {
             }
         }.await()
     }
+
+    suspend fun getNumeroElementosCarrito(userid: String?): Int? {
+        val documentos = firestore.collection(CARRITO)
+            .whereEqualTo("idCliente", userid)
+            .get()
+            .await()
+            .documents
+
+        return documentos.fold(0) { acumulador, documento ->
+            val unidades = documento.getLong("unidades")?.toInt() ?: 0
+            acumulador + unidades
+        }
+    }
 }
