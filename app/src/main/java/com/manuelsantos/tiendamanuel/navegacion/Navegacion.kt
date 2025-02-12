@@ -2,7 +2,6 @@ package com.manuelsantos.tiendamanuel.navegacion
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +38,7 @@ import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosViewModel
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.ForgotPasswordScreen
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.SignUpScreen
+import com.manuelsantos.tiendamanuel.ui.screen.profileScreen.ProfileScreen
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filter
@@ -143,6 +143,14 @@ fun Navegacion(
                 }
             }
 
+            composable<Profile> {
+                ProfileScreen(auth) {
+                    navController.navigate(Productos) {
+                        popUpTo(Productos) { inclusive = true }
+                    }
+                }
+            }
+
             composable<Productos> {
                 ProductosScreen(auth, viewModelFirestore,
                     { id ->
@@ -152,6 +160,9 @@ fun Navegacion(
                         navController.navigate(Login) {
                             popUpTo(Productos) { inclusive = true }
                         }
+                    },
+                    {
+                        navController.navigate(Profile)
                     }
                 )
             }
@@ -165,6 +176,13 @@ fun Navegacion(
                     {
                         navController.navigate(Productos) {
                             popUpTo(Productos) { inclusive = true }
+                        }
+                    },
+                    {
+                        navController.navigate(Profile) {
+                            popUpTo(Detalle(id)) {
+                                inclusive = true
+                            }
                         }
                     },
                     {

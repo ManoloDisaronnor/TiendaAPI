@@ -51,7 +51,7 @@ import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit) {
+fun TopBarTienda(nombre: String, auth: AuthManager, navigateToProfile: () -> Unit, navigateToLogin: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val numeroCarrito = 3
 
@@ -148,7 +148,7 @@ fun TopBarTienda(nombre: String, auth: AuthManager, navigateToLogin: () -> Unit)
                     },
                     onClick = {
                         expanded = false
-                        // Acción para ir al perfil
+                        navigateToProfile()
                     }
                 )
                 DropdownMenuItem(

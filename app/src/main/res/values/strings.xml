@@ -11,4 +11,8 @@
     <string name="no_tienes_cuenta">¿Aún no tienes cuenta? Registrate</string>
     <string name="divisor">-------- otros metodos --------</string>
     <string name="cargando">Ten paciencia, Telares del Sur esta cargando</string>
+    <string name="ajustes">Perfil del usuario</string>
+    <string name="cambiar_nombre">Nombre</string>
+    <string name="guardar_cambios">Guardar cambios</string>
+    <string name="volver">Volver</string>
 </resources>

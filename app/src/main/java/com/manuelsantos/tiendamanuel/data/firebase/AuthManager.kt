@@ -143,6 +143,29 @@ class AuthManager : ViewModel() {
         googleSignInClient.signOut()
     }
 
+    suspend fun updateDisplayName(newName: String) {
+        val user = auth.currentUser
+        if (user == null) {
+            _authState.value = AuthRes.Error("Usuario no autenticado")
+            return
+        }
+
+        _progressBar.value = true
+        viewModelScope.launch {
+            _authState.value = try {
+                user.updateProfile(
+                    UserProfileChangeRequest.Builder()
+                        .setDisplayName(newName)
+                        .build()
+                ).await()
+                AuthRes.Success(auth.currentUser)
+            } catch (e: Exception) {
+                AuthRes.Error(e.message ?: "Error al actualizar el nombre")
+            }
+            _progressBar.value = false
+        }
+    }
+
     sealed class AuthRes<out T> {
         data object Idle : AuthRes<Nothing>()
         data class Success<T>(val data: T) : AuthRes<T>()

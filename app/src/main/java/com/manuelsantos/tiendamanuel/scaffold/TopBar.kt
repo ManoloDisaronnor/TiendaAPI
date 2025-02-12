@@ -53,6 +53,7 @@ fun TopBar(
     nombre: String,
     auth: AuthManager,
     onBackClick: () -> Unit,
+    navigateToProfile: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -145,7 +146,7 @@ fun TopBar(
                     },
                     onClick = {
                         expanded = false
-                        // Acción para ir al perfil
+                        navigateToProfile()
                     }
                 )
                 DropdownMenuItem(

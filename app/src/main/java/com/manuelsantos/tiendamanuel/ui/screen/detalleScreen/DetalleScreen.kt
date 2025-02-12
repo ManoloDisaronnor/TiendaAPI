@@ -57,6 +57,7 @@ fun DetalleScreen(
     viewModel: FirestoreViewModel,
     id: String,
     navigateToBack: () -> Unit,
+    navigateToProfile: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
     val producto by viewModel.firestoreProduct.observeAsState()
@@ -84,6 +85,9 @@ fun DetalleScreen(
                     auth,
                     {
                         navigateToBack()
+                    },
+                    {
+                        navigateToProfile()
                     },
                     {
                         navigateToLogin()

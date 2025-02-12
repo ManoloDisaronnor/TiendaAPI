@@ -58,7 +58,8 @@ fun ProductosScreen(
     auth: AuthManager,
     viewModel: FirestoreViewModel,
     navigateToDetalle: (String) -> Unit,
-    navigateToLogin: () -> Unit
+    navigateToLogin: () -> Unit,
+    navigateToProfile: () -> Unit
 ) {
     val lista by viewModel.firestoreProducts.observeAsState(emptyList())
     val progressBar by viewModel.isLoading.observeAsState(false)
@@ -73,9 +74,16 @@ fun ProductosScreen(
                     user.displayName?.split(" ")?.firstOrNull() ?: "Usuario"
                 }
 
-                TopBarTienda(nombre, auth) {
-                    navigateToLogin()
-                }
+                TopBarTienda(
+                    nombre,
+                    auth,
+                    {
+                        navigateToProfile()
+                    },
+                    {
+                        navigateToLogin()
+                    }
+                )
             }
         ) { innerPadding ->
             Column(
