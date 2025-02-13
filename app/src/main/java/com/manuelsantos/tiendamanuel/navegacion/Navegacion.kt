@@ -32,6 +32,7 @@ import androidx.navigation.toRoute
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.CarritoScreen
 import com.manuelsantos.tiendamanuel.ui.screen.detalleScreen.DetalleScreen
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.LoginScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosScreen
@@ -151,6 +152,24 @@ fun Navegacion(
                 }
             }
 
+            composable<Carrito> {
+                CarritoScreen(
+                    auth,
+                    viewModelFirestore,
+                    {
+                        navController.popBackStack()
+                    },
+                    {
+                        navController.navigate(Login) {
+                            popUpTo(Carrito) { inclusive = true }
+                        }
+                    },
+                    {
+                        navController.navigate(Profile)
+                    }
+                )
+            }
+
             composable<Productos> {
                 ProductosScreen(auth, viewModelFirestore,
                     { id ->
@@ -160,6 +179,9 @@ fun Navegacion(
                         navController.navigate(Login) {
                             popUpTo(Productos) { inclusive = true }
                         }
+                    },
+                    {
+                      navController.navigate(Carrito)
                     },
                     {
                         navController.navigate(Profile)
@@ -184,6 +206,9 @@ fun Navegacion(
                                 inclusive = true
                             }
                         }
+                    },
+                    {
+                        navController.navigate(Carrito)
                     },
                     {
                         navController.navigate(Login) {

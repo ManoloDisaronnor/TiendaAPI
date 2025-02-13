@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
@@ -54,10 +55,12 @@ import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
 fun TopBar(
     nombreProducto: String,
     nombre: String,
+    fontSize: TextUnit,
     auth: AuthManager,
     viewModelFirestore: FirestoreViewModel,
     onBackClick: () -> Unit,
     navigateToProfile: () -> Unit,
+    navigateToCarrito: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -72,7 +75,7 @@ fun TopBar(
             Text(
                 text = nombreProducto,
                 style = MaterialTheme.typography.titleSmall,
-                fontSize = 13.sp
+                fontSize = fontSize
             )
         },
         navigationIcon = {
@@ -196,6 +199,7 @@ fun TopBar(
                     },
                     onClick = {
                         expanded = false
+                        navigateToCarrito()
                     }
                 )
                 DropdownMenuItem(

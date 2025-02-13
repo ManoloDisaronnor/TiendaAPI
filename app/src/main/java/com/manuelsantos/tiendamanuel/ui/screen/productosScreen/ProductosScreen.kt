@@ -59,6 +59,7 @@ fun ProductosScreen(
     viewModel: FirestoreViewModel,
     navigateToDetalle: (String) -> Unit,
     navigateToLogin: () -> Unit,
+    navigateToCarrito: () -> Unit,
     navigateToProfile: () -> Unit
 ) {
     val lista by viewModel.firestoreProducts.observeAsState(emptyList())
@@ -80,6 +81,9 @@ fun ProductosScreen(
                     viewModelFirestore = viewModel,
                     {
                         navigateToProfile()
+                    },
+                    {
+                        navigateToCarrito()
                     },
                     {
                         navigateToLogin()

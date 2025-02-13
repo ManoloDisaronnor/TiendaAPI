@@ -15,6 +15,9 @@ object ForgotPassword
 object Profile
 
 @Serializable
+object Carrito
+
+@Serializable
 object Productos
 
 @Serializable

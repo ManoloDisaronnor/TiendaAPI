@@ -49,7 +49,7 @@ class FirestoreManager(auth: AuthManager, context: Context) {
 
     // ----------------------------------- CARRITO -----------------------------
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getCarritoForCliente(userId: Int): Flow<List<CarritoDB>> {
+    fun getCarrito(userId: String): Flow<List<CarritoDB>> {
         return firestore.collection(CARRITO)
             .whereEqualTo("idCliente", userId)
             .snapshots()
@@ -62,7 +62,7 @@ class FirestoreManager(auth: AuthManager, context: Context) {
                         val precioCarrito = document.getDouble("precio") ?: 0.0
 
                         // Busca el producto en Firestore
-                        val productoSnapshot = firestore.collection("productos")
+                        val productoSnapshot = firestore.collection(PRODUCTOS)
                             .document(idProducto)
                             .get()
                             .await()

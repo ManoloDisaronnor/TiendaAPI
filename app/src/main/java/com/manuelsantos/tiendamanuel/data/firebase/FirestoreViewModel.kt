@@ -1,12 +1,16 @@
 package com.manuelsantos.tiendamanuel.data.firebase
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
+import com.manuelsantos.tiendamanuel.data.repositories.db.CarritoDB
 import com.manuelsantos.tiendamanuel.data.repositories.model.ProductoItem
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class FirestoreViewModel(
@@ -21,6 +25,9 @@ class FirestoreViewModel(
 
     private val _numeroElementosCarrito = MutableLiveData<Int>()
     val numeroElementosCarrito: LiveData<Int> = _numeroElementosCarrito
+
+    private val _carrito = MutableLiveData<List<ProductoItem>>()
+    val carrito: LiveData<List<ProductoItem>> = _carrito
 
     private val _syncState = MutableLiveData<SyncState>()
     val syncState: LiveData<SyncState> = _syncState
@@ -107,6 +114,22 @@ class FirestoreViewModel(
         viewModelScope.launch {
             _numeroElementosCarrito.value = firestoreManager.getNumeroElementosCarrito(userid)
         }
+    }
+
+    fun getCarrito(userid: String?, context: Context) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val carrito: Flow<List<CarritoDB>>
+            if (userid != null) {
+                carrito = firestoreManager.getCarrito(userid)
+                carrito.collect { carritoDB ->
+                    _carrito.value = carritoDB.map { it.producto }
+                }
+            } else {
+                Toast.makeText(context, "Usuario no encontrado", Toast.LENGTH_SHORT).show()
+            }
+        }
+        _isLoading.value = false
     }
 
     class FirestoreViewModelFactory(

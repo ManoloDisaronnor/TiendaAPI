@@ -59,6 +59,7 @@ fun TopBarTienda(
     auth: AuthManager,
     viewModelFirestore: FirestoreViewModel,
     navigateToProfile: () -> Unit,
+    navigateToCarrito: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -202,6 +203,7 @@ fun TopBarTienda(
                     },
                     onClick = {
                         expanded = false
+                        navigateToCarrito()
                     }
                 )
                 DropdownMenuItem(
