@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.data.repositories.db.CarritoDB
+import com.manuelsantos.tiendamanuel.data.repositories.db.ProductoItemDB
 import com.manuelsantos.tiendamanuel.data.repositories.model.ProductoItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -26,14 +27,17 @@ class FirestoreViewModel(
     private val _numeroElementosCarrito = MutableLiveData<Int>()
     val numeroElementosCarrito: LiveData<Int> = _numeroElementosCarrito
 
-    private val _carrito = MutableLiveData<List<ProductoItem>>()
-    val carrito: LiveData<List<ProductoItem>> = _carrito
+    private val _carrito = MutableLiveData<List<ProductoItemDB>>()
+    val carrito: LiveData<List<ProductoItemDB>> = _carrito
 
     private val _syncState = MutableLiveData<SyncState>()
     val syncState: LiveData<SyncState> = _syncState
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _eliminadoCarritoLoading = MutableLiveData<Boolean>()
+    val eliminadoCarritoLoading: LiveData<Boolean> = _eliminadoCarritoLoading
 
     sealed class SyncState {
         object Loading : SyncState()
@@ -110,6 +114,10 @@ class FirestoreViewModel(
         _isLoading.value = false
     }
 
+    fun recargarEstadoSync() {
+        _syncState.value = SyncState.Loading
+    }
+
     fun getNumeroElementosCarrito(userid: String?) {
         viewModelScope.launch {
             _numeroElementosCarrito.value = firestoreManager.getNumeroElementosCarrito(userid)
@@ -123,13 +131,67 @@ class FirestoreViewModel(
             if (userid != null) {
                 carrito = firestoreManager.getCarrito(userid)
                 carrito.collect { carritoDB ->
-                    _carrito.value = carritoDB.map { it.producto }
+                    _carrito.value = carritoDB.map {
+                        ProductoItemDB(
+                            it.producto,
+                            it.cantidad,
+                            it.precio
+                        )
+                    }
                 }
             } else {
                 Toast.makeText(context, "Usuario no encontrado", Toast.LENGTH_SHORT).show()
             }
         }
         _isLoading.value = false
+    }
+
+    fun eliminarLineaCarrito(producto: ProductoItemDB, idUsuario: String, context: Context) {
+        viewModelScope.launch {
+            try {
+                firestoreManager.eliminarLineaCarrito(producto.producto.id.toString(), idUsuario)
+                getNumeroElementosCarrito(idUsuario)
+                getCarrito(idUsuario, context)
+                Toast.makeText(context, "Producto eliminado del carrito", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al eliminar producto: " + e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun vaciarCarrito(uid: String, context: Context) {
+        _eliminadoCarritoLoading.value = true
+        viewModelScope.launch {
+            try{
+                firestoreManager.deleteCarritoUser(uid)
+                getNumeroElementosCarrito(uid)
+                getCarrito(uid, context)
+                Toast.makeText(context, "Carrito vaciado", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al vaciar carrito: " + e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+        _eliminadoCarritoLoading.value = false
+    }
+
+    fun restarUnidadCarrito(producto: ProductoItemDB, idUsuario: String, context: Context) {
+        viewModelScope.launch {
+            try {
+                firestoreManager.restarUnidadCarrito(producto.producto.id.toString(), idUsuario)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al restar unidad: " + e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun sumarUnidadCarrito(producto: ProductoItemDB, idUsuario: String, context: Context) {
+        viewModelScope.launch {
+            try {
+                firestoreManager.sumarUnidadCarrito(producto.producto.id.toString(), idUsuario)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al sumar unidad: " + e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     class FirestoreViewModelFactory(

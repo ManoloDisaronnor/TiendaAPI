@@ -34,11 +34,13 @@ class FirestoreManager(auth: AuthManager, context: Context) {
 
     suspend fun getProductoById(id: String): ProductoItem {
         val document = firestore.collection(PRODUCTOS).document(id).get().await()
-        return document.toObject(ProductoItem::class.java) ?: throw Exception("Producto no encontrado")
+        return document.toObject(ProductoItem::class.java)
+            ?: throw Exception("Producto no encontrado")
     }
 
     suspend fun addProducto(productoItem: ProductoItem) {
-        firestore.collection(PRODUCTOS).document(productoItem.id.toString()).set(productoItem).await()
+        firestore.collection(PRODUCTOS).document(productoItem.id.toString()).set(productoItem)
+            .await()
     }
 
     suspend fun deleteAllProducts() {
@@ -124,4 +126,43 @@ class FirestoreManager(auth: AuthManager, context: Context) {
             acumulador + unidades
         }
     }
+
+    suspend fun eliminarLineaCarrito(idProducto: String, idUsuario: String) {
+        val docId = "${idUsuario}_${idProducto}"
+        firestore.collection(CARRITO).document(docId).delete().await()
+    }
+
+    fun deleteCarritoUser(uid: String) {
+        firestore.collection(CARRITO)
+            .whereEqualTo("idCliente", uid)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                querySnapshot.documents.forEach { document ->
+                    document.reference.delete()
+                }
+            }
+    }
+
+    fun restarUnidadCarrito(idProducto: String, idUsuario: String) {
+        val docId = "${idUsuario}_${idProducto}"
+        firestore.runTransaction { transaction ->
+            transaction.update(
+                firestore.collection(CARRITO).document(docId),
+                "unidades",
+                FieldValue.increment(-1)
+            )
+        }
+    }
+
+    fun sumarUnidadCarrito(idProducto: String, idUsuario: String) {
+        val docId = "${idUsuario}_${idProducto}"
+        firestore.runTransaction { transaction ->
+            transaction.update(
+                firestore.collection(CARRITO).document(docId),
+                "unidades",
+                FieldValue.increment(1)
+            )
+        }
+    }
+
 }

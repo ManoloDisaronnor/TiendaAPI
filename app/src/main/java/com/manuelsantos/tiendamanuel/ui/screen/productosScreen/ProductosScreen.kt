@@ -1,5 +1,6 @@
 package com.manuelsantos.tiendamanuel.ui.screen.productosScreen
 
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
@@ -27,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,8 +66,35 @@ fun ProductosScreen(
     navigateToProfile: () -> Unit
 ) {
     val lista by viewModel.firestoreProducts.observeAsState(emptyList())
+    val syncState by viewModel.syncState.observeAsState()
+    val context = LocalContext.current
     val progressBar by viewModel.isLoading.observeAsState(false)
     val user = auth.getCurrentUser()
+
+    LaunchedEffect(syncState) {
+        when(syncState) {
+            is FirestoreViewModel.SyncState.Success -> {
+                Toast.makeText(context, (syncState as FirestoreViewModel.SyncState.Success).message, Toast.LENGTH_SHORT).show()
+                viewModel.recargarEstadoSync()
+            }
+            is FirestoreViewModel.SyncState.Error -> {
+                Toast.makeText(
+                    context,
+                    "No se ha podido añadir al carrito, error: " + (syncState as FirestoreViewModel.SyncState.Error).exception.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.recargarEstadoSync()
+            }
+            is FirestoreViewModel.SyncState.Loading -> {
+
+            }
+
+            null -> {
+
+            }
+        }
+
+    }
 
     if (user != null) {
         Scaffold(
@@ -118,7 +148,7 @@ fun ProductosScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             items(lista) { mediaItem ->
-                                MediaItemCard(mediaItem, viewModel, user!!.uid, navigateToDetalle)
+                                MediaItemCard(mediaItem, viewModel, user.uid, navigateToDetalle)
                             }
                         }
                     }
