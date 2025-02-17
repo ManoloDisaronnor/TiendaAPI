@@ -1,7 +1,6 @@
 package com.manuelsantos.tiendamanuel.ui.screen.carritoScreen
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -20,11 +19,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Remove
@@ -64,7 +61,8 @@ fun CarritoScreen(
     viewModel: FirestoreViewModel,
     navigateToBack: () -> Unit,
     navigateToLogin: () -> Unit,
-    navigateToProfile: () -> Unit
+    navigateToProfile: () -> Unit,
+    navigateToFactura: () -> Unit
 ) {
     val listaCarrito by viewModel.carrito.observeAsState(emptyList())
     val progressBar by viewModel.isLoading.observeAsState(false)
@@ -178,7 +176,7 @@ fun CarritoScreen(
                     }
                     Button(
                         onClick = {
-                            Log.e("CarritoScreen", "Comprar productos")
+                            navigateToFactura()
                         },
                         enabled = listaCarrito.isNotEmpty()
                     ) {

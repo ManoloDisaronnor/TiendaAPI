@@ -18,6 +18,12 @@ object Profile
 object Carrito
 
 @Serializable
+object Factura
+
+@Serializable
+object CompraFinalizada
+
+@Serializable
 object Productos
 
 @Serializable

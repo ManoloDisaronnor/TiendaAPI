@@ -33,6 +33,8 @@ import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
 import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.CarritoScreen
+import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.CompraFinalizadaScreen
+import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.FacturaScreen
 import com.manuelsantos.tiendamanuel.ui.screen.detalleScreen.DetalleScreen
 import com.manuelsantos.tiendamanuel.ui.screen.loginScreen.LoginScreen
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosScreen
@@ -166,6 +168,56 @@ fun Navegacion(
                     },
                     {
                         navController.navigate(Profile)
+                    },
+                    {
+                        navController.navigate(Factura)
+                    }
+                )
+            }
+
+            composable<Factura> {
+                FacturaScreen(
+                    auth,
+                    viewModelFirestore,
+                    {
+                        navController.popBackStack()
+                    },
+                    {
+                        navController.navigate(Login) {
+                            popUpTo(Factura) { inclusive = true }
+                        }
+                    },
+                    {
+                        navController.navigate(Profile)
+                    },
+                    {
+                        navController.popBackStack()
+                    },
+                    {
+                        navController.navigate(CompraFinalizada)
+                    }
+                )
+            }
+
+            composable<CompraFinalizada> {
+                CompraFinalizadaScreen(
+                    auth,
+                    viewModelFirestore,
+                    {
+                        navController.popBackStack()
+                    },
+                    {
+                        navController.navigate(Login) {
+                            popUpTo(CompraFinalizada) { inclusive = true }
+                        }
+                    },
+                    {
+                        navController.navigate(Profile)
+                    },
+                    {
+                        navController.navigate(Carrito) {
+                            popUpTo(Carrito) { inclusive = true }
+                        }
                     }
                 )
             }

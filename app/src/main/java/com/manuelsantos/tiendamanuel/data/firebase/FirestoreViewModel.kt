@@ -174,6 +174,19 @@ class FirestoreViewModel(
         _eliminadoCarritoLoading.value = false
     }
 
+    fun vaciarCarrito(uid: String) {
+        _eliminadoCarritoLoading.value = true
+        viewModelScope.launch {
+            try{
+                firestoreManager.deleteCarritoUser(uid)
+                getNumeroElementosCarrito(uid)
+            } catch (e: Exception) {
+                _syncState.value = SyncState.Error(e)
+            }
+        }
+        _eliminadoCarritoLoading.value = false
+    }
+
     fun restarUnidadCarrito(producto: ProductoItemDB, idUsuario: String, context: Context) {
         viewModelScope.launch {
             try {
