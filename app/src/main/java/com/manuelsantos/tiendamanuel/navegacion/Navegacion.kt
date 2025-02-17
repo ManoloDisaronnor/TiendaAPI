@@ -218,6 +218,11 @@ fun Navegacion(
                         navController.navigate(Carrito) {
                             popUpTo(Carrito) { inclusive = true }
                         }
+                    },
+                    {
+                        navController.navigate(Productos) {
+                            popUpTo(Productos) { inclusive = true }
+                        }
                     }
                 )
             }

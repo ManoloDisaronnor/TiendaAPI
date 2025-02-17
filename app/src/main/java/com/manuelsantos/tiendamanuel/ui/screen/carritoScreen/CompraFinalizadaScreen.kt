@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,12 +50,13 @@ fun CompraFinalizadaScreen(
     navigateToBack: () -> Unit,
     navigateToLogin: () -> Unit,
     navigateToProfile: () -> Unit,
-    navigateToCarrito: () -> Unit
+    navigateToCarrito: () -> Unit,
+    navigateToHome: () -> Unit
 ) {
     val user = auth.getCurrentUser()
     val context = LocalContext.current
     var showVideo by remember { mutableStateOf(true) }
-    val numeroElementosCarrito by viewModel.numeroElementosCarrito.observeAsState(0)
+    var isVideoLoading by remember { mutableStateOf(true) }
 
     val exoPlayer = remember {
         SimpleExoPlayer.Builder(context).build().apply {
@@ -127,17 +130,37 @@ fun CompraFinalizadaScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (showVideo) {
-                    AndroidView(
-                        factory = { ctx ->
-                            PlayerView(ctx).apply {
-                                player = exoPlayer
-                                useController = false
-                            }
-                        },
+                    Box(
                         modifier = Modifier
-                            .width(450.dp)
-                            .height(450.dp)
-                    )
+                            .width(400.dp)
+                            .height(400.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isVideoLoading) {
+                            CircularProgressIndicator()
+                        }
+
+                        AndroidView(
+                            factory = { ctx ->
+                                PlayerView(ctx).apply {
+                                    player = exoPlayer
+                                    useController = false
+
+                                    // Escuchamos cuando el video está listo
+                                    player?.addListener(object : Player.Listener {
+                                        override fun onPlaybackStateChanged(state: Int) {
+                                            if (state == Player.STATE_READY) {
+                                                isVideoLoading = false
+                                            }
+                                        }
+                                    })
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .alpha(if (isVideoLoading) 0f else 1f) // Hacemos el video invisible mientras carga
+                        )
+                    }
                 } else {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -157,6 +180,14 @@ fun CompraFinalizadaScreen(
                             text = "Gracias por tu compra",
                             style = MaterialTheme.typography.bodyLarge
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                navigateToHome()
+                            }
+                        ) {
+                            Text("Volver a la tienda")
+                        }
                     }
                 }
             }
