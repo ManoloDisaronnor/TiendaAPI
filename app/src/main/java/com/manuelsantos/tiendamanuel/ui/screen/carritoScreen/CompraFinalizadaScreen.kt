@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.RawResourceDataSource
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
@@ -60,19 +62,29 @@ fun CompraFinalizadaScreen(
 
     val exoPlayer = remember {
         SimpleExoPlayer.Builder(context).build().apply {
-            val videoUri = RawResourceDataSource.buildRawResourceUri(R.raw.success_animation)
-            val mediaItem = MediaItem.fromUri(videoUri)
-            setMediaItem(mediaItem)
-            prepare()
+            try {
+                val afd = context.resources.openRawResourceFd(R.raw.success_animation)
+                val dataSource = DefaultDataSourceFactory(context, "user-agent")
+                val mediaSource = ProgressiveMediaSource.Factory(dataSource)
+                    .createMediaSource(MediaItem.fromUri(RawResourceDataSource.buildRawResourceUri(R.raw.success_animation)))
 
-            // Cuando el video termine, cambiaremos showVideo a false
-            addListener(object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_ENDED) {
+                setMediaSource(mediaSource)
+                prepare()
+
+                addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) {
+                        if (state == Player.STATE_ENDED) {
+                            showVideo = false
+                        }
+                    }
+
+                    override fun onPlayerError(error: PlaybackException) {
                         showVideo = false
                     }
-                }
-            })
+                })
+            } catch (e: Exception) {
+                showVideo = false
+            }
         }
     }
 
@@ -86,7 +98,11 @@ fun CompraFinalizadaScreen(
         if (user != null) {
             viewModel.vaciarCarrito(user.uid)
         }
-        exoPlayer.play()
+        try {
+            exoPlayer.play()
+        } catch (e: Exception) {
+            showVideo = false
+        }
     }
 
     if (user == null) {
@@ -146,7 +162,6 @@ fun CompraFinalizadaScreen(
                                     player = exoPlayer
                                     useController = false
 
-                                    // Escuchamos cuando el video está listo
                                     player?.addListener(object : Player.Listener {
                                         override fun onPlaybackStateChanged(state: Int) {
                                             if (state == Player.STATE_READY) {
@@ -158,7 +173,7 @@ fun CompraFinalizadaScreen(
                             },
                             modifier = Modifier
                                 .fillMaxSize()
-                                .alpha(if (isVideoLoading) 0f else 1f) // Hacemos el video invisible mientras carga
+                                .alpha(if (isVideoLoading) 0f else 1f)
                         )
                     }
                 } else {
