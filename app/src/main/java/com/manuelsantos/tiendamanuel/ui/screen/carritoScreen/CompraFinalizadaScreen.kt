@@ -63,7 +63,6 @@ fun CompraFinalizadaScreen(
     val exoPlayer = remember {
         SimpleExoPlayer.Builder(context).build().apply {
             try {
-                val afd = context.resources.openRawResourceFd(R.raw.success_animation)
                 val dataSource = DefaultDataSourceFactory(context, "user-agent")
                 val mediaSource = ProgressiveMediaSource.Factory(dataSource)
                     .createMediaSource(MediaItem.fromUri(RawResourceDataSource.buildRawResourceUri(R.raw.success_animation)))
