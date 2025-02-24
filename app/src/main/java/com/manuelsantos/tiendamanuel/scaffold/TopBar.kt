@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
-import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.ui.FirestoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

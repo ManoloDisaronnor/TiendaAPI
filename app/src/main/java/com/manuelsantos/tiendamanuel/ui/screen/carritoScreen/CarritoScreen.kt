@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
-import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.ui.FirestoreViewModel
 import com.manuelsantos.tiendamanuel.data.repositories.db.ProductoItemDB
 import com.manuelsantos.tiendamanuel.scaffold.TopBar
 

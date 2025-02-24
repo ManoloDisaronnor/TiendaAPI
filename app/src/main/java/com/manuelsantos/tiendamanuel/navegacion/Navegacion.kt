@@ -31,7 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
-import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.ui.FirestoreViewModel
 import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.CarritoScreen
 import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.CompraFinalizadaScreen
 import com.manuelsantos.tiendamanuel.ui.screen.carritoScreen.FacturaScreen

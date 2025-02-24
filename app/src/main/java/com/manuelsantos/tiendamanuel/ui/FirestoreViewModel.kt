@@ -1,4 +1,4 @@
-package com.manuelsantos.tiendamanuel.data.firebase
+package com.manuelsantos.tiendamanuel.ui
 
 import android.content.Context
 import android.widget.Toast
@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.manuelsantos.tiendamanuel.data.firebase.FirestoreManager
 import com.manuelsantos.tiendamanuel.data.model.MediaItem
 import com.manuelsantos.tiendamanuel.data.repositories.db.CarritoDB
 import com.manuelsantos.tiendamanuel.data.repositories.db.ProductoItemDB
@@ -23,6 +24,9 @@ class FirestoreViewModel(
 
     private val _firestoreProduct = MutableLiveData<ProductoItem>()
     val firestoreProduct: LiveData<ProductoItem> = _firestoreProduct
+
+    private val _firestoreCategories = MutableLiveData<List<String>>()
+    val firestoreCategories: LiveData<List<String>> = _firestoreCategories
 
     private val _numeroElementosCarrito = MutableLiveData<Int>()
     val numeroElementosCarrito: LiveData<Int> = _numeroElementosCarrito
@@ -205,6 +209,55 @@ class FirestoreViewModel(
                 Toast.makeText(context, "Error al sumar unidad: " + e.message, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun loadCategories() {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val categorias = firestoreManager.getCategorias()
+                _firestoreCategories.value = categorias
+            } catch (e: Exception) {
+                _syncState.value = SyncState.Error(e)
+            }
+        }
+        _isLoading.value = false
+    }
+
+    fun loadFirestoreProductsByCategory(categoriaSeleccionada: String) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                _firestoreProducts.value = firestoreManager.getProductosPorCategoria(categoriaSeleccionada)
+            } catch (e: Exception) {
+                _syncState.value = SyncState.Error(e)
+            }
+        }
+        _isLoading.value = false
+    }
+
+    fun loadProductsByCategory(categoriaSeleccionada: String) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                _firestoreProducts.value = firestoreProducts.value?.filter {
+                    it.category == categoriaSeleccionada
+                }
+            } catch (e: Exception) {
+                _syncState.value = SyncState.Error(e)
+            }
+        }
+        _isLoading.value = false
+    }
+
+    fun filtrarLista(searchText: String) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            _firestoreProducts.value = _firestoreProducts.value?.filter {
+                it.title.contains(searchText, ignoreCase = true)
+            }
+        }
+        _isLoading.value = false
     }
 
     class FirestoreViewModelFactory(

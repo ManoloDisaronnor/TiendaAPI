@@ -165,4 +165,23 @@ class FirestoreManager(auth: AuthManager, context: Context) {
         }
     }
 
+    suspend fun getCategorias(): List<String> {
+        val querySnapshot = firestore.collection(PRODUCTOS).get().await()
+        return querySnapshot.documents
+            .mapNotNull { it.getString("category") }
+            .distinct()
+    }
+
+    suspend fun getProductosPorCategoria(categoriaSeleccionada: String): List<ProductoItem> {
+        val querySnapshot = firestore.collection(PRODUCTOS)
+            .whereEqualTo("category", categoriaSeleccionada)
+            .get()
+            .await()
+
+        return querySnapshot.documents.mapNotNull { document ->
+            document.toObject(ProductoItem::class.java)
+        }
+
+    }
+
 }

@@ -42,7 +42,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.RawResourceDataSource
 import com.manuelsantos.tiendamanuel.R
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
-import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.ui.FirestoreViewModel
 import com.manuelsantos.tiendamanuel.scaffold.TopBar
 
 @Composable

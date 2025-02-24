@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.platform.LocalContext
 import com.manuelsantos.tiendamanuel.data.firebase.AuthManager
 import com.manuelsantos.tiendamanuel.data.firebase.FirestoreManager
-import com.manuelsantos.tiendamanuel.data.firebase.FirestoreViewModel
+import com.manuelsantos.tiendamanuel.ui.FirestoreViewModel
 import com.manuelsantos.tiendamanuel.navegacion.Navegacion
 import com.manuelsantos.tiendamanuel.ui.screen.productosScreen.ProductosViewModel
 import com.manuelsantos.tiendamanuel.ui.theme.TiendaManuelTheme
